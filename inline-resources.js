@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
+const less = require('less')
 
 
 /**
@@ -40,6 +41,7 @@ function inlineResources(projectPath) {
   // For each file, inline the templates and styles under it and write the new file.
   return Promise.all(files.map(filePath => {
     const fullFilePath = path.join(projectPath, filePath);
+    console.log("TEST: " + path.dirname(fullFilePath));
     return readFile(fullFilePath, 'utf-8')
       .then(content => inlineResourcesFromString(content, url => {
         // Resolve the template url.
@@ -56,14 +58,16 @@ function inlineResources(projectPath) {
  * Inline resources from a string content.
  * @param content {string} The source file's content.
  * @param urlResolver {Function} A resolver that takes a URL and return a path.
- * @returns {string} The content with resources inlined.
+ * @returns {Promise<string>} The content with resources inlined.
  */
 function inlineResourcesFromString(content, urlResolver) {
   // Curry through the inlining functions.
-  return [
-    inlineTemplate,
-    inlineStyle
-  ].reduce((content, fn) => fn(content, urlResolver), content);
+  // return [
+  //   inlineTemplate,
+  //   inlineStyle
+  // ].reduce((content, fn) => fn(content, urlResolver), content);
+  var modifiedContent = inlineTemplate(content, urlResolver);
+  return inlineStyle(modifiedContent, urlResolver);
 }
 
 /**
@@ -90,23 +94,40 @@ function inlineTemplate(content, urlResolver) {
  * replace with `styles: [...]` (with the content of the file included).
  * @param urlResolver {Function} A resolver that takes a URL and return a path.
  * @param content {string} The source file's content.
- * @return {string} The content with all styles inlined.
+ * @return {Promise<string>} The content with all styles inlined.
  */
 function inlineStyle(content, urlResolver) {
-  return content.replace(/styleUrls:\s*(\[[\s\S]*?\])/gm, function (m, styleUrls) {
+  const urlToCompiledStyle = {};
+  const stylePromises = [];
+  content.replace(/styleUrls:\s*(\[[\s\S]*?\])/gm, function (m, styleUrls) {
     const urls = eval(styleUrls);
-    return 'styles: ['
-      + urls.map(styleUrl => {
+    const stylePromise = Promise.all(
+      urls.map(styleUrl => {
         const styleFile = urlResolver(styleUrl);
         const styleContent = fs.readFileSync(styleFile, 'utf-8');
-        const shortenedStyle = styleContent
-          .replace(/([\n\r]\s*)+/gm, ' ')
-          .replace(/"/g, '\\"');
-        return `"${shortenedStyle}"`;
+        return less.render(styleContent, {filename: path.resolve(styleFile)})
+        .then(function (compiledContent) {
+          const shortenedStyle = compiledContent.css
+            .replace(/([\n\r]\s*)+/gm, ' ')
+            .replace(/"/g, '\\"');
+          return `"${shortenedStyle}"`;
+        });
       })
-        .join(',\n')
-      + ']';
+    ).then( finalStyleList => {
+      urlToCompiledStyle[styleUrls] = 'styles: [' + finalStyleList.join(',\n') + ']';
+      return true;
+    })
+    stylePromises.push(stylePromise);
+    return m;    
   });
+
+  return Promise.all(stylePromises).then(results => {
+    const allContent = content.replace(/styleUrls:\s*(\[[\s\S]*?\])/gm, function (m, styleUrls) {
+      return urlToCompiledStyle[styleUrls];
+    });
+    return allContent;
+  });
+  
 }
 
 module.exports = inlineResources;
