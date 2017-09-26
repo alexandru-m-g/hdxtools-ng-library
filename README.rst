@@ -4,6 +4,7 @@ HDXTOOLS ANGULAR LIBRARY
 INFO
 ----
 The build scripts are based on the following repo `Angular QuickStart Lib <https://github.com/filipesilva/angular-quickstart-lib>`_ . Thanks !
+The `inline-resources.js <inline-resources.js>`_ script was modified to support **less**.
 
 
 BUILDING THE LIBRARY
