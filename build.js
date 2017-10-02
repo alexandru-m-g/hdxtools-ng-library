@@ -59,17 +59,20 @@ return Promise.resolve()
         // The key here is library name, and the value is the the name of the global variable name
         // the window object.
         // See https://github.com/rollup/rollup/wiki/JavaScript-API#globals for more.
-        '@angular/core': 'ng.core'
+        '@angular/core': 'ng.core',
+        '@angular/http': 'ng.http'
       },
       external: [
         // List of dependencies
         // See https://github.com/rollup/rollup/wiki/JavaScript-API#external for more.
-        '@angular/core'
+        '@angular/core',
+        '@angular/http'
       ],
       plugins: [
         commonjs({
           include: ['node_modules/rxjs/**']
-        }),
+        }
+      ),
         sourcemaps(),
         nodeResolve({ jsnext: true, module: true })
       ]
@@ -96,6 +99,7 @@ return Promise.resolve()
       dest: path.join(distFolder, `${libName}.es5.js`),
       format: 'es'
     });
+    console.log(fesm5config);
 
     // ESM+ES2015 flat module bundle.
     const fesm2015config = Object.assign({}, rollupBaseConfig, {
