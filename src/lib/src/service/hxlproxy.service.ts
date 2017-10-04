@@ -17,7 +17,7 @@ import 'rxjs/Rx';
 @Injectable()
 export class HxlproxyService {
 
-  private config: { [s: string]: string; } = {};
+  private config: { [s: string]: any; } = {};
 
   private tagToTitleMap: any;
   private metaRows: string[][];
@@ -31,7 +31,7 @@ export class HxlproxyService {
     // this.getDataForBite({type: 'chart', groupByTags: ['#adm1+name', '#adm1+code'], valueTag: '#affected+buildings+partially'});
   // }
 
-  public init(params: { [s: string]: string; }): void {
+  public init(params: { [s: string]: any; }): void {
     for (const key in params) {
       if (params.hasOwnProperty(key)) {
         this.config[key] = params[key];
@@ -43,7 +43,7 @@ export class HxlproxyService {
     this.hxlFileUrl = hxlFileUrl;
 
     let myObservable: Observable<string[][]>;
-    if (this.metaRows) {
+    if (this.metaRows && !this.config['noCachedMetarows']) {
       this.logger.log('Using cached metarows');
       const mySubject = new AsyncSubject<string[][]>();
       mySubject.next(this.metaRows);
