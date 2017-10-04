@@ -12,6 +12,7 @@ import { TimeseriesChartBite } from '../types/timeseries-chart-bite';
 import { MyLogService } from './mylog.service';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/reduce';
 import 'rxjs/Rx';
 
 @Injectable()
