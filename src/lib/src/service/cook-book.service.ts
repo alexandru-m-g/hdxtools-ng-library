@@ -11,7 +11,7 @@ import { Observable } from 'rxjs/Observable';
 import { TimeseriesChartBite } from '../types/timeseries-chart-bite';
 import { MyLogService } from './mylog.service';
 import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/operator/flatMap';
+import 'rxjs/add/operator/mergeMap';
 import 'rxjs/Rx';
 
 @Injectable()
@@ -152,7 +152,7 @@ export class CookBookService {
     const cookBooksObs: Array<Observable<Response>> = this.cookBooks.map(book => this.http.get(book));
     const biteConfigs: Observable<BiteConfig[]> = cookBooksObs
       .reduce((prev, current, idx) => prev.merge(current))
-      .flatMap((res: Response) => res.json())
+      .mergeMap((res: Response) => res.json())
       .map((biteConfig) => <BiteConfig>biteConfig)
       .toArray();
       // .subscribe(json => console.log(json);
@@ -162,7 +162,7 @@ export class CookBookService {
       biteConfigs,
       metaRows
     )
-      .flatMap(
+      .mergeMap(
         res => {
           const configs: BiteConfig[] = res[0];
           const rows = res[1];
