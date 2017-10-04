@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
+import { Http, Response } from '@angular/http';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/reduce';
+import 'rxjs/add/observable/forkJoin';
 import { BiteConfig } from '../types/bite-config';
 import { HxlproxyService } from './hxlproxy.service';
 import { Bite } from '../types/bite';
 import { ChartBite } from '../types/chart-bite';
 import { KeyFigureBite } from '../types/key-figure-bite';
-import { Http, Response } from '@angular/http';
 import { BiteLogicFactory } from '../types/bite-logic-factory';
 import { AggregateFunctionOptions } from '../types/ingredients';
-import { Observable } from 'rxjs/Observable';
 import { TimeseriesChartBite } from '../types/timeseries-chart-bite';
 import { MyLogService } from './mylog.service';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/reduce';
+import { Observable } from 'rxjs/Observable';
+import { AsyncSubject } from 'rxjs/AsyncSubject';
 import 'rxjs/Rx';
 
 @Injectable()
@@ -174,9 +175,28 @@ export class CookBookService {
         }
       );
 
-    bites.subscribe(bite => this.logger.log(bite));
+    let temp = bites.catch(err => this.handleError(err));
+    temp.subscribe(bite => this.logger.log(bite), (error: any) => console.log('RECIPE: ' + error));
 
     return bites;
+  }
+
+  private handleError (error: Response | any) {
+    let errMsg: string;
+    if (error instanceof Response) {
+      try{
+        const body = error.json() || '';
+        const err = body.error || JSON.stringify(body);
+        errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+      } catch(e) {
+        errMsg = e.toString();
+      }
+    } else {
+      errMsg = error.message ? error.message : error.toString();
+    }
+    console.error('ERR! ' + errMsg);
+    const retValue = Observable.throw(errMsg);
+    return retValue;
   }
 
 }
