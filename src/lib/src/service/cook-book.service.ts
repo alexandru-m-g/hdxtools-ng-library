@@ -11,6 +11,7 @@ import { Observable } from 'rxjs/Observable';
 import { TimeseriesChartBite } from '../types/timeseries-chart-bite';
 import { MyLogService } from './mylog.service';
 import 'rxjs/add/observable/forkJoin';
+import 'rxjs/add/operator/flatMap';
 import 'rxjs/Rx';
 
 @Injectable()
