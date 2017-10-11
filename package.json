@@ -1,6 +1,6 @@
 {
   "name": "hdxtools-ng-lib",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Library QuickStart package.json from the documentation, supplemented with testing support",
   "main": "./bundles/hdxtools-ng-lib.umd.js",
   "module": "./hdxtools-ng-lib.es5.js",

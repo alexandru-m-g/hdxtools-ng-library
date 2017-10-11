@@ -88,6 +88,7 @@ export abstract class BiteLogic {
     hxlTags.forEach((v, idx) => availableTags[v] = idx);
 
     const valueColumn = columnNames[availableTags[this.bite.ingredient.valueColumn]];
+    const hxlValueColumn = hxlTags[availableTags[this.bite.ingredient.valueColumn]];
     const groupColumn = columnNames[availableTags[this.bite.ingredient.aggregateColumn]];
     let aggFunction = null;
     switch (this.bite.ingredient.aggregateFunction) {
@@ -108,6 +109,8 @@ export abstract class BiteLogic {
     let title = aggFunction;
     if (valueColumn && valueColumn.trim().length > 0) {
       title += ' ' + valueColumn;
+    } else if (hxlValueColumn && hxlValueColumn.trim().length > 0) {
+      title += ' ' + hxlValueColumn;
     }
     if (groupColumn && groupColumn.trim().length > 0) {
       title += ' grouped by ' + groupColumn;
@@ -116,6 +119,7 @@ export abstract class BiteLogic {
 
     return this;
   }
+
   public abstract populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): BiteLogic;
 
 }
