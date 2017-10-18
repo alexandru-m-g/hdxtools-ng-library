@@ -4,7 +4,7 @@ import { MyLogService } from './mylog.service';
 declare const ga: any;
 declare const mixpanel: any;
 
-export type MapOfStrings = { [s: string]: string; };
+export type MapOfStrings = { [s: string]: string|boolean; };
 export type GaExtras = {
   'type'?: string,
   'label'?: string,
@@ -114,7 +114,7 @@ export class AnalyticsService {
       }
     };
     if (additionalMpData) {
-      Object.assign(mpData, additionalMpData);
+      Object.assign(mpData.metadata, additionalMpData);
     }
 
 
