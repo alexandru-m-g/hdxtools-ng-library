@@ -6,14 +6,13 @@ declare const mixpanel: any;
 
 export type MapOfStrings = { [s: string]: string; };
 export type GaExtras = {
-  'label': string,
+  'type'?: string,
+  'label'?: string,
   'action'?: string
 };
 
-enum GaType {
-  PAGEVIEW = 'pageview',
-  EVENT = 'event'
-};
+export const GA_PAGEVIEW = 'pageview';
+export const GA_EVENT = 'event';
 
 /**
  * Service that will try to abstract sending the analytics events
@@ -30,7 +29,7 @@ export class AnalyticsService {
 
   constructor(private logger: MyLogService) { }
 
-  public init(gaKey: string, mpToken: string) {
+  public init(gaKey: string, mpKey: string) {
     try {
       this.gaToken = gaKey;
       if (this.gaToken) {
@@ -42,8 +41,7 @@ export class AnalyticsService {
     }
 
     try {
-      // this.mpToken = this.appConfig.thisIsProd() ?
-      //   this.appConfig.get('prodMixpanelKey') : this.appConfig.get('testMixpanelKey');
+      this.mpToken = mpKey;
       if (this.mpToken) {
         mixpanel.init(this.mpToken);
         this.mpInitialised = true;
@@ -99,8 +97,10 @@ export class AnalyticsService {
 
   public trackEventCategory(category: string, additionalGaData?: GaExtras, additionalMpData?: MapOfStrings) {
     const {url, pageTitle} = this.extractPageInfo();
+    additionalGaData = additionalGaData ? additionalGaData : {};
+
     const gaData = {
-      type: GaType.EVENT,
+      type: additionalGaData.type || GA_EVENT,
       category: category,
       action: additionalGaData.action || null,
       label: additionalGaData.label || pageTitle || null
@@ -109,8 +109,8 @@ export class AnalyticsService {
     const mpData = {
       category: category,
       metadata: {
-        url: url,
-        pageTitle: pageTitle,
+        'embedded in': url,
+        'page title': pageTitle,
       }
     };
     if (additionalMpData) {
@@ -125,7 +125,7 @@ export class AnalyticsService {
     // this.logger.info('Logging the event...');
     if (this.gaInitialised) {
       // this.logger.info('    Google Analytics - ok');
-      if (GaType.PAGEVIEW === gaData.type) {
+      if (GA_PAGEVIEW === gaData.type) {
         ga('send', 'pageview');
       } else {
         ga('send', gaData.type, gaData.category, gaData.action, gaData.label);
