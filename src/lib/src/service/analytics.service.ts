@@ -8,7 +8,8 @@ export type MapOfStrings = { [s: string]: string|boolean|number; };
 export type GaExtras = {
   'type'?: string,
   'label'?: string,
-  'action'?: string
+  'action'?: string,
+  'value'?: number,
 };
 
 export const GA_PAGEVIEW = 'pageview';
@@ -103,7 +104,8 @@ export class AnalyticsService {
       type: additionalGaData.type || GA_EVENT,
       category: category,
       action: additionalGaData.action || null,
-      label: additionalGaData.label || pageTitle || null
+      label: additionalGaData.label || pageTitle || null,
+      value: additionalGaData.value || null
     };
 
     const mpData = {
@@ -128,7 +130,7 @@ export class AnalyticsService {
       if (GA_PAGEVIEW === gaData.type) {
         ga('send', 'pageview');
       } else {
-        ga('send', gaData.type, gaData.category, gaData.action, gaData.label);
+        ga('send', gaData.type, gaData.category, gaData.action, gaData.label, gaData.value);
       }
     }
 
