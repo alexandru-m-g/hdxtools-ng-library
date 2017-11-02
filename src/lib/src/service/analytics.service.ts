@@ -4,7 +4,7 @@ import { MyLogService } from './mylog.service';
 declare const ga: any;
 declare const mixpanel: any;
 
-export type MapOfStrings = { [s: string]: string|boolean; };
+export type MapOfStrings = { [s: string]: string|boolean|number; };
 export type GaExtras = {
   'type'?: string,
   'label'?: string,
