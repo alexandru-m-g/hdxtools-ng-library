@@ -15,6 +15,7 @@ export { SimpleModule } from './src/simple.module';
 
 import { CookBookService } from './src/service/cook-book.service';
 import { HxlproxyService } from './src/service/hxlproxy.service';
+import { AnalyticsService, GA_EVENT, GA_PAGEVIEW } from './src/service/analytics.service';
 
 import { KeyFigureBiteLogic } from './src/types/key-figure-bite-logic';
 import { KeyFigureBite } from './src/types/key-figure-bite';
@@ -27,5 +28,6 @@ import { BiteConfig } from './src/types/bite-config';
 import { BiteLogicFactory } from './src/types/bite-logic-factory';
 
 
-export { CookBookService, HxlproxyService, KeyFigureBite, KeyFigureBiteLogic, ChartBite, 
-    ChartBiteLogic, TimeseriesChartBite, TimeseriesChartBiteLogic, Bite, BiteConfig, BiteLogicFactory }
+export { CookBookService, HxlproxyService, AnalyticsService, KeyFigureBite, KeyFigureBiteLogic, ChartBite,
+    ChartBiteLogic, TimeseriesChartBite, TimeseriesChartBiteLogic, Bite, BiteConfig, BiteLogicFactory,
+    GA_EVENT, GA_PAGEVIEW }
