@@ -9,7 +9,7 @@ export class ChartBite extends Bite {
   public categories: string[];
 
   public swapAxis = true;
-  public showGrid = true;
+  public showGrid = false;
   public pieChart = false;
 
   static type(): string {
