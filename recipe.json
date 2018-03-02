@@ -11,7 +11,7 @@
         {"#date+year": "BY-MAX"}
       ],
       "aggregateColumns": [
-        "#value+funding+contribution+type"
+        "#org+type"
       ],
       "valueColumns": [
         "#value+funding+total+usd"
