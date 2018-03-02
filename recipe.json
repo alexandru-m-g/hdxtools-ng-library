@@ -11,10 +11,10 @@
         {"#date+year": "BY-MAX"}
       ],
       "aggregateColumns": [
-        "#sector+name"
+        "#value+funding+contribution+type"
       ],
       "valueColumns": [
-        "#value+funding+pct"
+        "#value+funding+total+usd"
       ]
     }
   }
