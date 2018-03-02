@@ -8,7 +8,7 @@
         "sum"
       ],
       "filtersWith":[
-        {"#date+year": "BY-MAX"}
+        {"#date+year": "2016"}
       ],
       "aggregateColumns": [
         "#org+type"
