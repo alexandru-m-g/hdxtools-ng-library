@@ -120,6 +120,19 @@ export abstract class BiteLogic {
     return this;
   }
 
+  public hasFilters(): boolean {
+    if (this.bite.filters) {
+      const filterWith = this.bite.filters.filterWith;
+      const filterWithout = this.bite.filters.filterWithout;
+      if (filterWith && filterWith.length > 0) {
+        return true;
+      } else if (filterWithout && filterWithout.length > 0 ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public abstract populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): BiteLogic;
 
 }

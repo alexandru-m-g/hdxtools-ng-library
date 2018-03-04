@@ -1,9 +1,15 @@
+import { SpecialFilterValues } from './hxl-operations';
+import { HxlFilter } from './../../types/ingredients';
+import { BiteFilters } from './../../types/bite';
+
+export type SpecialFilterValues = { [s: string]: string; };
+
 export abstract class BasicRecipe {
   constructor(public filter: string) {}
 
 }
 
-class CountRecipe extends BasicRecipe {
+export class CountRecipe extends BasicRecipe {
   /**
    *
    * @param patterns column names to aggregate by
@@ -61,6 +67,16 @@ class WithoutRowsRecipe extends BasicRecipe {
    */
   constructor(public queries: string[]) {
     super('without_rows');
+  }
+}
+
+class WithRowsRecipe extends BasicRecipe {
+  /**
+   *
+   * @param queries list of conditions like "date+year>2010"
+   */
+  constructor(public queries: string[]) {
+    super('with_rows');
   }
 }
 
@@ -123,12 +139,26 @@ export class SortOperation extends  AbstractOperation {
 export class FilterOperation extends  AbstractOperation {
   /**
    * Filter operation (only based on one column for now)
-   * @param valueColumn The column on which the conditions will be applied
-   * @param filteredValues the value which should be filtered out
+   * @param filters list of filters from hxl recipe  (@see HxlFilter)
+   * @param isWithFilter true if the records matching the filter should be kept, false otherwise
+   * @param specialFilterValues dictionary with values for min, max, etc
    */
-  constructor(valueColumn: string, filteredValues: number[]) {
+  constructor(filters: HxlFilter[], isWithFilter: boolean, specialFilterValues: SpecialFilterValues) {
     const filterConditions: string[] = [];
-    filteredValues.forEach( num => filterConditions.push(`${valueColumn}=${num}`) );
-    super(new WithoutRowsRecipe(filterConditions));
+    filters.forEach( pair => {
+      const column = Object.keys(pair)[0];
+      let value = pair[column];
+      const key = `${column}-${value}`;
+
+      if (specialFilterValues[key]) {
+        value = specialFilterValues[key];
+      }
+      filterConditions.push(`${column}=${value}`);
+    });
+    if (isWithFilter) {
+      super(new WithRowsRecipe(filterConditions));
+    } else {
+      super(new WithoutRowsRecipe(filterConditions));
+    }
   }
 }

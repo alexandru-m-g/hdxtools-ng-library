@@ -1,16 +1,22 @@
+import { BiteFilters } from './../../types/bite';
 import { AbstractHxlTransformer } from './abstract-hxl-transformer';
-import { BasicRecipe, FilterOperation } from './hxl-operations';
+import { BasicRecipe, FilterOperation, SpecialFilterValues } from './hxl-operations';
 
 export class FilterSettingTransformer extends AbstractHxlTransformer {
 
-  constructor(private innerTransformer: AbstractHxlTransformer,
-              private valueColumn: string, private filteredValues: number[]) {
+  constructor(private innerTransformer: AbstractHxlTransformer, private filters: BiteFilters,
+              private specialFilterValues: SpecialFilterValues) {
     super(null);
   }
 
   buildRecipes(): BasicRecipe[] {
     let recipes: BasicRecipe[] = [];
-    recipes.push(new FilterOperation(this.valueColumn, this.filteredValues).recipe);
+    if (this.filters.filterWith) {
+      recipes.push(new FilterOperation(this.filters.filterWith, true, this.specialFilterValues).recipe);
+    }
+    if (this.filters.filterWithout) {
+      recipes.push(new FilterOperation(this.filters.filterWithout, false, this.specialFilterValues).recipe);
+    }
 
     const innerRecipes: BasicRecipe[] = this.innerTransformer.buildRecipes();
 

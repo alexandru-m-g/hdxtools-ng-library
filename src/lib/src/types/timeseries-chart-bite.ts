@@ -1,3 +1,4 @@
+import { BiteFilters } from './bite';
 import { ChartBite } from './chart-bite';
 import { AggregateFunctionOptions } from './ingredients';
 
@@ -7,9 +8,9 @@ export class TimeseriesChartBite extends ChartBite {
   }
 
   constructor(dateColumn: string, aggregateColumn: string, valueColumn: string,
-              aggregateFunction: AggregateFunctionOptions, title?: string) {
+              aggregateFunction: AggregateFunctionOptions, filters: BiteFilters, title?: string) {
 
-    super(aggregateColumn, valueColumn, aggregateFunction, title);
+    super(aggregateColumn, valueColumn, aggregateFunction, filters, title);
     this.ingredient.dateColumn = dateColumn;
     this.displayCategory = 'Timeseries';
   }
