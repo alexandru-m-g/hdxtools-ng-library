@@ -1,4 +1,4 @@
-import { Bite } from './bite';
+import { Bite, BiteFilters } from './bite';
 import { Ingredient } from './ingredient';
 import { AggregateFunctionOptions } from './ingredients';
 
@@ -25,8 +25,8 @@ export class KeyFigureBite extends Bite {
     return 'key figure';
   }
 
-  constructor(valueColumn: string, aggregateFunction: AggregateFunctionOptions, title?: string) {
-    super(title);
+  constructor(valueColumn: string, aggregateFunction: AggregateFunctionOptions, filters: BiteFilters, title?: string) {
+    super(filters, title);
     this.ingredient = new Ingredient(null, valueColumn, aggregateFunction);
     this.dataTitle = valueColumn;
     this.displayCategory = 'Key Figures';

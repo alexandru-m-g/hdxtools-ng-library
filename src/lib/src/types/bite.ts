@@ -1,3 +1,4 @@
+import { HxlFilter } from './ingredients';
 
 import { Ingredient } from './ingredient';
 export abstract class Bite {
@@ -24,18 +25,23 @@ export abstract class Bite {
 
   public description: string;
 
+  // Deprecated using filters instead
   public filteredValues: number[];
+
+  public filters: BiteFilters;
 
   static type(): string {
     return 'bite';
   }
 
-  constructor(title?: string) {
+  constructor(filters: BiteFilters, title?: string) {
     if (title) {
       this.setTitle(title);
     }
     this.initialTitle = this.title;
     this.type = (this.constructor as typeof Bite).type();
+
+    this.filters = filters;
 
     this.filteredValues = [];
     this.errorMsg = null;
@@ -48,3 +54,7 @@ export abstract class Bite {
 
 }
 
+export class BiteFilters {
+  constructor(public filterWith: HxlFilter[], public filterWithout: HxlFilter[]) {}
+
+}
