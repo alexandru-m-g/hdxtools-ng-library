@@ -3,6 +3,7 @@ import { Ingredient } from './ingredient';
 import { AggregateFunctionOptions } from './ingredients';
 
 export class ChartBite extends Bite {
+  static colorPattern = ['#1ebfb3', '#0077ce', '#f2645a', '#9C27B0'];
   // HXL Proxy generated: values
   public values: any[];
   // HXL Proxy generated: categories
@@ -11,6 +12,8 @@ export class ChartBite extends Bite {
   public swapAxis = true;
   public showGrid = false;
   public pieChart = false;
+  public color = ChartBite.colorPattern[0];
+  public sorting: string = null;
 
   static type(): string {
     return 'chart';

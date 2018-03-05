@@ -13,5 +13,6 @@ export class TimeseriesChartBite extends ChartBite {
     super(aggregateColumn, valueColumn, aggregateFunction, filters, title);
     this.ingredient.dateColumn = dateColumn;
     this.displayCategory = 'Timeseries';
+    this.color = ChartBite.colorPattern[1];
   }
 }
