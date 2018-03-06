@@ -11,7 +11,7 @@
         "#date+year"
       ],
       "valueColumns": [
-        "#value+funding+total+usd / #value+funding+total"
+        "#value+funding+total+usd / #value+funding+required+usd"
       ]
     }
   }
