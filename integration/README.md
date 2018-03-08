@@ -24,3 +24,5 @@ npm install
 Now the library is installed in your integration app. 
 
 You can use `npm start` to start a live reload server running the app in JIT mode, or `npm run build && npm run serve:aot` to run a static server in AOT mode.
+
+Cheat: `npm run build && cd dist && npm pack && cd .. && cp dist/hxl-preview-ng-lib*.tgz build/`
