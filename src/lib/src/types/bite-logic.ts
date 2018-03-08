@@ -133,6 +133,29 @@ export abstract class BiteLogic {
     return false;
   }
 
+  public usesDateColumn(): boolean {
+    // if (this.bite.ingredient.dateColumn) {
+    //   return true;
+    // }
+    return false;
+  }
+
+  public get dateColumn(): string {
+    return this.bite.ingredient.dateColumn;
+  }
+
+  public get valueColumns(): string[] {
+    return [this.bite.ingredient.valueColumn];
+  }
+
   public abstract populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): BiteLogic;
 
+  public abstract colorUsage(): ColorUsage;
+
+}
+
+export enum ColorUsage {
+  NONE,
+  ONE,
+  MANY
 }
