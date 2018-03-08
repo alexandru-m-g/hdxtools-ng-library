@@ -93,7 +93,7 @@ export abstract class AbstractOperation {
 }
 
 export class CountOperation extends AbstractOperation {
-  constructor(valueCol: string, aggCols: string[], operation: string) {
+  constructor(valueCols: string[], aggCols: string[], operation: string) {
     let aggColumns: any[];
     if ( aggCols && aggCols.length > 0 ) {
       aggColumns = aggCols.filter( (value: string) => Boolean(value) );
@@ -101,7 +101,7 @@ export class CountOperation extends AbstractOperation {
     if (aggColumns.length === 0) {
       aggColumns.push('#fake_column');
     }
-    const operations = [`${operation}(${valueCol})`];
+    const operations: string[] = valueCols.map(valueCol => `${operation}(${valueCol}) as ${valueCol}`);
     super(new CountRecipe(aggColumns, operations));
   }
 

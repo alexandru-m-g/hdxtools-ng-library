@@ -6,16 +6,16 @@ export class DistinctCountChartTransformer extends AbstractHxlTransformer {
   buildRecipes(): BasicRecipe[] {
     const recipes: BasicRecipe[] = [];
 
-    const countOperation1 = new CountOperation('', this.groupByTags.concat([this.valueTag]),
+    const countOperation1 = new CountOperation([''], this.groupByTags.concat(this.valueTags),
       'count');
     recipes.push(countOperation1.recipe);
 
-    const countOperation2 = new CountOperation('', this.groupByTags,
+    const countOperation2 = new CountOperation([''], this.groupByTags,
       'count');
     recipes.push(countOperation2.recipe);
 
-    const renameOperation = new RenameOperation('#meta+count', this.valueTag, null);
-    recipes.push(renameOperation.recipe);
+    // const renameOperation = new RenameOperation('#meta+count', this.valueTag, null);
+    // recipes.push(renameOperation.recipe);
 
     return recipes;
   }

@@ -1,4 +1,5 @@
-import { BiteLogic } from './bite-logic';
+import { UnitsUtil } from './../util/units-util';
+import { BiteLogic, ColorUsage } from './bite-logic';
 import { KeyFigureBite } from './key-figure-bite';
 
 export class KeyFigureBiteLogic extends BiteLogic {
@@ -15,13 +16,7 @@ export class KeyFigureBiteLogic extends BiteLogic {
 
   public computeBiteUnit(forceRecompute: boolean) {
     if (forceRecompute || this.bite.unit !== 'none') {
-      if (this.bite.value > 1000000000.0) {
-        this.bite.unit = 'bln';
-      } else if (this.bite.value > 1000000.0) {
-        this.bite.unit = 'mln';
-      } else if (this.bite.value > 1000.0) {
-        this.bite.unit = 'k';
-      }
+      this.bite.unit = UnitsUtil.computeBiteUnit(this.bite.value);
     }
   }
 
@@ -42,6 +37,10 @@ export class KeyFigureBiteLogic extends BiteLogic {
   public unpopulateBite(): BiteLogic {
     this.bite.value = null;
     return super.unpopulateBite();
+  }
+
+  public colorUsage(): ColorUsage {
+    return ColorUsage.NONE;
   }
 
 }

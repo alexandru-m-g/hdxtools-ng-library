@@ -1,17 +1,19 @@
 import { Bite } from '../../types/bite';
+import { BiteLogic } from '../../types/bite-logic';
 import { BasicRecipe } from './hxl-operations';
 
 export abstract class AbstractHxlTransformer {
 
   protected  type: string;
-  protected valueTag: string;
+  protected valueTags: string[];
   public groupByTags: string[];
   protected aggregateFunction: string;
 
-  constructor(bite: Bite) {
-    if (bite) {
+  constructor(private biteLogic: BiteLogic) {
+    if (biteLogic) {
+      const bite = biteLogic.getBite();
       this.type = bite.type;
-      this.valueTag = bite.ingredient.valueColumn;
+      this.valueTags = biteLogic.valueColumns;
       this.groupByTags = [bite.ingredient.aggregateColumn];
       this.aggregateFunction = bite.ingredient.aggregateFunction;
     }

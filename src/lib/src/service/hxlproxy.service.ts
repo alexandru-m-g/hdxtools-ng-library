@@ -120,27 +120,27 @@ export class HxlproxyService {
   populateBite(bite: Bite, hxlFileUrl: string): Observable<any> {
     return this.fetchMetaRows(hxlFileUrl).flatMap(
       (metarows: string[][]) => {
+        const biteLogic = BiteLogicFactory.createBiteLogic(bite);
         let transformer: AbstractHxlTransformer;
         switch (bite.ingredient.aggregateFunction) {
           case 'count':
-            transformer = new CountChartTransformer(bite);
+            transformer = new CountChartTransformer(biteLogic);
             break;
           case 'sum':
-            transformer = new SumChartTransformer(bite);
+            transformer = new SumChartTransformer(biteLogic);
             break;
           case 'distinct-count':
-            transformer = new DistinctCountChartTransformer(bite);
+            transformer = new DistinctCountChartTransformer(biteLogic);
             break;
         }
-        if (bite.ingredient.dateColumn) {
-          transformer = new TimeseriesChartTransformer(transformer, bite.ingredient.dateColumn);
+        if (biteLogic.usesDateColumn()) {
+          transformer = new TimeseriesChartTransformer(transformer, biteLogic.dateColumn);
         }
         // if (bite.filteredValues && bite.filteredValues.length > 0) {
         //   transformer = new FilterSettingTransformer(transformer, bite.ingredient.valueColumn, bite.filteredValues);
         // }
 
         return this.fetchFilterSpecialValues(bite.filters).flatMap( specialFilterValues => {
-          const biteLogic = BiteLogicFactory.createBiteLogic(bite);
           if (biteLogic.hasFilters()) {
             transformer = new FilterSettingTransformer(transformer, bite.filters, specialFilterValues);
           }

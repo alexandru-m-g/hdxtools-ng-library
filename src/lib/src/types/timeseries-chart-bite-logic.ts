@@ -1,3 +1,4 @@
+import { ColorUsage } from './bite-logic';
 import { ChartBiteLogic } from './chart-bite-logic';
 
 export class TimeseriesChartBiteLogic extends ChartBiteLogic {
@@ -85,5 +86,19 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
     const result: string[] = [];
     mySet.forEach(item => result.push(item));
     return result;
+  }
+
+  public usesDateColumn(): boolean {
+    // if (this.bite.ingredient.dateColumn) {
+    //   return true;
+    // }
+    return true;
+  }
+
+  public colorUsage(): ColorUsage {
+    if (this.bite.ingredient.aggregateColumn) {
+      return ColorUsage.MANY;
+    }
+    return ColorUsage.ONE;
   }
 }

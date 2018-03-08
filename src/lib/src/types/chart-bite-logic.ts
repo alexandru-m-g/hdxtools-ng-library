@@ -1,4 +1,4 @@
-import { BiteLogic } from './bite-logic';
+import { BiteLogic, ColorUsage } from './bite-logic';
 import { ChartBite } from './chart-bite';
 
 export class ChartBiteLogic extends BiteLogic {
@@ -45,6 +45,13 @@ export class ChartBiteLogic extends BiteLogic {
     this.bite.values = null;
     this.bite.categories = null;
     return super.unpopulateBite();
+  }
+
+  public colorUsage(): ColorUsage {
+    if (this.bite.pieChart) {
+      return ColorUsage.MANY;
+    }
+    return ColorUsage.ONE;
   }
 
 }
