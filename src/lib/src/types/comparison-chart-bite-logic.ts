@@ -24,7 +24,9 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
 
       for (let i = 2; i < hxlData.length; i++) {
         let computedValue = hxlData[i][compColIndex];
-        if (this.bite.ingredient.aggregateColumn) {
+
+        // If we have more than 1 row of data
+        if (hxlData.length > 3) {
           computedValue = computedValue - hxlData[i][valColIndex];
         }
         this.bite.comparisonValues.push(computedValue);
