@@ -7,8 +7,8 @@
       "aggregateFunctions": [
         "sum"
       ],
-      "filtersWithout":[
-        {"#date+year": "2010"}
+      "filtersWith":[
+        {"#date+year": "$MAX$"}
       ],
       "aggregateColumns": [
         "#date+year"
