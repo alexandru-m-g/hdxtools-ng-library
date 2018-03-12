@@ -223,8 +223,7 @@ export class CookBookService {
         }
       );
 
-    let temp = bites.catch(err => this.handleError(err));
-    temp.subscribe(bite => this.logger.log(bite), (error: any) => console.log('RECIPE: ' + error));
+    bites.catch(err => this.handleError(err));
 
     return bites;
   }

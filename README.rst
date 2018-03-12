@@ -27,3 +27,4 @@ More information about using a library `without publishing on npm server <http:/
 **NOTE**: For now the library is not published on npm but is part of this repo in `build <build>`_
 
   
+Cheat: `npm run build && cd dist && npm pack && cd .. && cp dist/hxl-preview-ng-lib*.tgz build/`
