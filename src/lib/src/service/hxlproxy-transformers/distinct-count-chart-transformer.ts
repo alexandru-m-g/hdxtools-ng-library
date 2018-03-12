@@ -14,8 +14,8 @@ export class DistinctCountChartTransformer extends AbstractHxlTransformer {
       'count');
     recipes.push(countOperation2.recipe);
 
-    // const renameOperation = new RenameOperation('#meta+count', this.valueTag, null);
-    // recipes.push(renameOperation.recipe);
+    const renameOperation = new RenameOperation('#meta+count', this.valueTags[0], null);
+    recipes.push(renameOperation.recipe);
 
     return recipes;
   }

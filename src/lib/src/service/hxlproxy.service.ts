@@ -90,8 +90,10 @@ export class HxlproxyService {
       }
     });
 
-    (filter.filterWith || []).forEach(createHxlProxyRecipes);
-    (filter.filterWithout || []).forEach(createHxlProxyRecipes);
+    if (filter) {
+      (filter.filterWith || []).forEach(createHxlProxyRecipes);
+      (filter.filterWithout || []).forEach(createHxlProxyRecipes);
+    }
 
     const hxlProxyObservables: Observable<boolean>[] = inputs.map(input => {
       return this.makeCallToHxlProxy([{ key: 'recipe', value: input.recipes }], response => {
