@@ -5,7 +5,8 @@ export abstract class BiteLogic {
 
   public resetBite(): BiteLogic {
     this.bite.dataTitle = null;
-    this.bite.title = this.bite.initialTitle;
+    this.bite.uiProperties.title = null;
+    this.bite.uiProperties.description = null;
     this.bite.init = false;
     return this;
   }
@@ -51,7 +52,7 @@ export abstract class BiteLogic {
 
   protected buildImportantPropertiesList(): string[] {
     const importantProperties: string[] = [];
-    importantProperties.push(this.bite.initialTitle, this.bite.type);
+    importantProperties.push(this.bite.ingredient.title, this.bite.type);
     importantProperties.push(this.bite.ingredient.valueColumn, this.bite.ingredient.aggregateColumn);
     return importantProperties;
   }
@@ -84,46 +85,48 @@ export abstract class BiteLogic {
   };
 
   public populateWithTitle(columnNames: string[], hxlTags: string[]): BiteLogic {
-    const availableTags = {};
-    hxlTags.forEach((v, idx) => availableTags[v] = idx);
+    if (!this.bite.ingredient.title) {
+      const availableTags = {};
+      hxlTags.forEach((v, idx) => availableTags[v] = idx);
 
-    const valueColumn = columnNames[availableTags[this.bite.ingredient.valueColumn]];
-    const hxlValueColumn = hxlTags[availableTags[this.bite.ingredient.valueColumn]];
-    const groupColumn = columnNames[availableTags[this.bite.ingredient.aggregateColumn]];
-    let aggFunction = null;
-    switch (this.bite.ingredient.aggregateFunction) {
-      case 'count':
-        aggFunction = 'Row Count';
-        break;
-      case 'distinct-count':
-        aggFunction = 'Unique Values in';
-        break;
-      case 'sum':
-        aggFunction = 'Sum of';
-        break;
-      default:
-        aggFunction = 'Sum of';
-        break;
-    }
+      const valueColumn = columnNames[availableTags[this.bite.ingredient.valueColumn]];
+      const hxlValueColumn = hxlTags[availableTags[this.bite.ingredient.valueColumn]];
+      const groupColumn = columnNames[availableTags[this.bite.ingredient.aggregateColumn]];
+      let aggFunction = null;
+      switch (this.bite.ingredient.aggregateFunction) {
+        case 'count':
+          aggFunction = 'Row Count';
+          break;
+        case 'distinct-count':
+          aggFunction = 'Unique Values in';
+          break;
+        case 'sum':
+          aggFunction = 'Sum of';
+          break;
+        default:
+          aggFunction = 'Sum of';
+          break;
+      }
 
-    let title = aggFunction;
-    if (valueColumn && valueColumn.trim().length > 0) {
-      title += ' ' + valueColumn;
-    } else if (hxlValueColumn && hxlValueColumn.trim().length > 0) {
-      title += ' ' + hxlValueColumn;
+      let title = aggFunction;
+      if (valueColumn && valueColumn.trim().length > 0) {
+        title += ' ' + valueColumn;
+      } else if (hxlValueColumn && hxlValueColumn.trim().length > 0) {
+        title += ' ' + hxlValueColumn;
+      }
+      if (groupColumn && groupColumn.trim().length > 0) {
+        title += ' grouped by ' + groupColumn;
+      }
+      this.bite.computedProperties.title = title;
     }
-    if (groupColumn && groupColumn.trim().length > 0) {
-      title += ' grouped by ' + groupColumn;
-    }
-    this.bite.setTitle(title);
 
     return this;
   }
 
   public hasFilters(): boolean {
-    if (this.bite.filters) {
-      const filterWith = this.bite.filters.filterWith;
-      const filterWithout = this.bite.filters.filterWithout;
+    if (this.bite.ingredient.filters) {
+      const filterWith = this.bite.ingredient.filters.filterWith;
+      const filterWithout = this.bite.ingredient.filters.filterWithout;
       if (filterWith && filterWith.length > 0) {
         return true;
       } else if (filterWithout && filterWithout.length > 0 ) {
@@ -146,6 +149,16 @@ export abstract class BiteLogic {
 
   public get valueColumns(): string[] {
     return [this.bite.ingredient.valueColumn];
+  }
+
+  public get title(): string {
+    const title = this.bite.uiProperties.title || this.bite.ingredient.title || this.bite.computedProperties.title;
+    return title;
+  }
+
+  public get description(): string {
+    const description = this.bite.uiProperties.description || this.bite.ingredient.description;
+    return description;
   }
 
   public abstract populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): BiteLogic;

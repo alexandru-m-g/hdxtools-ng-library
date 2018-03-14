@@ -1,6 +1,6 @@
 import { HxlFilter } from './../types/ingredients';
+import { BiteFilters } from './../types/ingredient';
 import { CountRecipe, SpecialFilterValues } from './hxlproxy-transformers/hxl-operations';
-import { BiteFilters } from './../types/bite';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/mergeMap';
@@ -142,9 +142,9 @@ export class HxlproxyService {
         //   transformer = new FilterSettingTransformer(transformer, bite.ingredient.valueColumn, bite.filteredValues);
         // }
 
-        return this.fetchFilterSpecialValues(bite.filters).flatMap( specialFilterValues => {
+        return this.fetchFilterSpecialValues(bite.ingredient.filters).flatMap( specialFilterValues => {
           if (biteLogic.hasFilters()) {
-            transformer = new FilterSettingTransformer(transformer, bite.filters, specialFilterValues);
+            transformer = new FilterSettingTransformer(transformer, bite.ingredient.filters, specialFilterValues);
           }
 
           const recipesStr: string = transformer.generateJsonFromRecipes();

@@ -1,4 +1,4 @@
-import { BiteFilters } from './../types/bite';
+import { BiteFilters, Ingredient } from './../types/ingredient';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/mergeMap';
@@ -121,6 +121,8 @@ export class CookBookService {
 
         this.logger.info(recipeColumns);
 
+        const biteTitle = biteConfig.title;
+        const biteDescription = biteConfig.description;
         const currentFilters = new BiteFilters(biteConfig.ingredients.filtersWith, biteConfig.ingredients.filtersWithout);
         switch (biteConfig.type) {
           case TimeseriesChartBite.type():
@@ -129,12 +131,16 @@ export class CookBookService {
                 /* For count function we don't need value columns */
                 const modifiedValueColumns = aggFunction === 'count' ? ['#count'] : avValCols;
                 modifiedValueColumns.forEach(val => {
-                  const simple_bite = new TimeseriesChartBite(dateColumn, null, val, aggFunction, currentFilters);
+                  const general_ingredient = new Ingredient(null, val, aggFunction, dateColumn, null, null, currentFilters,
+                                                    biteTitle, biteDescription);
+                  const simple_bite = new TimeseriesChartBite(general_ingredient);
                   BiteLogicFactory.createBiteLogic(simple_bite).populateHashCode()
                     .populateWithTitle(columnNames, hxlTags);
                   observer.next(simple_bite);
                   avAggCols.forEach(agg => {
-                    const multiple_data_bite = new TimeseriesChartBite(dateColumn, agg, val, aggFunction, currentFilters);
+                    const ingredient = new Ingredient(agg, val, aggFunction, dateColumn, null, null, currentFilters,
+                      biteTitle, biteDescription);
+                    const multiple_data_bite = new TimeseriesChartBite(ingredient);
                     BiteLogicFactory.createBiteLogic(multiple_data_bite).populateHashCode()
                       .populateWithTitle(columnNames, hxlTags);
                     observer.next(multiple_data_bite);
@@ -147,11 +153,13 @@ export class CookBookService {
           case ComparisonChartBite.type():
             aggregateFunctions.forEach(aggFunction => {
               // We add a fake empty column for generating total comparisons (NOR grouped by any col)
-              const avAggColsAndFake = avAggCols.concat(['']);
-              avAggColsAndFake.forEach((agg) => {
+              // const avAggColsAndFake = avAggCols.concat(['']);
+              // avAggColsAndFake.forEach((agg) => {
+              avAggCols.forEach((agg) => {
                 comparisonBiteInfoList.forEach(info => {
-                  const bite = new ComparisonChartBite(agg, info.valueCol, aggFunction, info.comparisonValueCol,
-                      info.operator, currentFilters);
+                  const ingredient = new Ingredient(agg, info.valueCol, aggFunction, null, info.comparisonValueCol,
+                                        info.operator, currentFilters, biteTitle, biteDescription);
+                  const bite = new ComparisonChartBite(ingredient);
                   BiteLogicFactory.createBiteLogic(bite).populateHashCode().populateWithTitle(columnNames, hxlTags);
                   observer.next(bite);
                 });
@@ -165,7 +173,9 @@ export class CookBookService {
                 /* For count function we don't need value columns */
                 const modifiedValueColumns = aggFunction === 'count' ? ['#count'] : avValCols;
                 modifiedValueColumns.forEach(val => {
-                  const bite = new ChartBite(agg, val, aggFunction, currentFilters);
+                  const ingredient = new Ingredient(agg, val, aggFunction, null, null, null, currentFilters,
+                                                      biteTitle, biteDescription);
+                  const bite = new ChartBite(ingredient);
                   BiteLogicFactory.createBiteLogic(bite).populateHashCode().populateWithTitle(columnNames, hxlTags);
                   observer.next(bite);
                 });
@@ -177,7 +187,9 @@ export class CookBookService {
               /* For count function we don't need value columns */
               const modifiedValueColumns = aggFunction === 'count' ? ['#count'] : avValCols;
               modifiedValueColumns.forEach(val => {
-                const bite = new KeyFigureBite(val, aggFunction, currentFilters);
+                const ingredient = new Ingredient(null, val, aggFunction, null, null, null, currentFilters,
+                                          biteTitle, biteDescription);
+                const bite = new KeyFigureBite(ingredient);
                 BiteLogicFactory.createBiteLogic(bite).populateHashCode().populateWithTitle(columnNames, hxlTags);
                 observer.next(bite);
               });

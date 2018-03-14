@@ -1,5 +1,5 @@
-import { BiteFilters } from './bite';
 import { AggregateFunctionOptions } from './ingredients';
+import { BiteFilters, Ingredient } from './ingredient';
 import { ChartBite } from './chart-bite';
 
 export class ComparisonChartBite extends ChartBite {
@@ -10,14 +10,4 @@ export class ComparisonChartBite extends ChartBite {
   static type(): string {
     return 'comparison-chart';
   }
-
-  constructor(aggregateColumn: string, valueColumn: string, aggregateFunction: AggregateFunctionOptions,
-    comparisonValueColumn: string, comparisonOperator: string,
-    filters: BiteFilters, title?: string) {
-    super(aggregateColumn, valueColumn, aggregateFunction, filters, title);
-
-    this.ingredient.comparisonOperator = comparisonOperator;
-    this.ingredient.comparisonValueColumn = comparisonValueColumn;
-  }
-
 }

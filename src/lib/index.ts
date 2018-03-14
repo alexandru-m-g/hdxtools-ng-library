@@ -25,7 +25,7 @@ import { ComparisonChartBiteLogic } from './src/types/comparison-chart-bite-logi
 import { ComparisonChartBite } from './src/types/comparison-chart-bite';
 import { ChartBite } from './src/types/chart-bite';
 import { ChartBiteLogic } from './src/types/chart-bite-logic';
-import { ColorUsage } from './src/types/bite-logic';
+import { ColorUsage, BiteLogic } from './src/types/bite-logic';
 import { Bite } from './src/types/bite';
 import { BiteConfig } from './src/types/bite-config';
 import { BiteLogicFactory } from './src/types/bite-logic-factory';
@@ -33,6 +33,6 @@ import { UnitsUtil } from './src/util/units-util';
 
 
 export { CookBookService, HxlproxyService, AnalyticsService, KeyFigureBite, KeyFigureBiteLogic, ChartBite, ChartBiteLogic,
-    TimeseriesChartBite, TimeseriesChartBiteLogic, ComparisonChartBite, ComparisonChartBiteLogic,
+    TimeseriesChartBite, TimeseriesChartBiteLogic, ComparisonChartBite, ComparisonChartBiteLogic, BiteLogic,
     Bite, BiteConfig, BiteLogicFactory, ColorUsage, UnitsUtil,
     GA_EVENT, GA_PAGEVIEW }

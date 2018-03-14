@@ -5,6 +5,9 @@ export type AggregateFunctionOptions = 'sum' | 'count' | 'distinct-count';
  */
 export type HxlFilter = { [s: string]: string; }[];
 
+/**
+ * Represents ingredients data structure as loaded from a recipe file and is part of a BiteConfig
+ */
 export interface Ingredients {
   aggregateColumns: string[];
   valueColumns: string[];

@@ -19,7 +19,8 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
     return this;
   }
 
-  private multipleLinePopulateDataForChart(aggColIndex: number, hxlData: any[][], dateColIndex: number, valColIndex: number) {
+  private multipleLinePopulateDataForChart(aggColIndex: number, hxlData: any[][], dateColIndex: number,
+                        valColIndex: number) {
     const foundGroups = this.findGroups(aggColIndex, hxlData);
 
     const values: any[][] = [];
