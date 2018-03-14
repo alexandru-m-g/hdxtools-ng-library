@@ -1,6 +1,7 @@
 [
   {
     "name": "percentage of funding received by sector for latest year",
+    "title": "Test title",
     "description": "percentage of actual disbursements for sectors in the latest year ",
     "type": "comparison-chart",
     "ingredients": {
