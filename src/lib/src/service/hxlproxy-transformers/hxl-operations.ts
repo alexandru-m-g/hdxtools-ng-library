@@ -1,6 +1,5 @@
 import { SpecialFilterValues } from './hxl-operations';
 import { HxlFilter } from './../../types/ingredients';
-import { BiteFilters } from './../../types/bite';
 
 export type SpecialFilterValues = { [s: string]: string; };
 

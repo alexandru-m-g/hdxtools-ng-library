@@ -1,4 +1,4 @@
-import { BiteFilters } from './../../types/bite';
+import { BiteFilters } from './../../types/ingredient';
 import { AbstractHxlTransformer } from './abstract-hxl-transformer';
 import { BasicRecipe, FilterOperation, SpecialFilterValues } from './hxl-operations';
 

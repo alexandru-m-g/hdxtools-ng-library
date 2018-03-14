@@ -16,6 +16,8 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
 
   public populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): ComparisonChartBiteLogic {
     super.populateWithHxlProxyInfo(hxlData, tagToTitleMap);
+    this.bite.pieChart = false;
+
     const valColIndex = this.findHxlTagIndex(this.bite.ingredient.valueColumn, hxlData);
     const compColIndex = this.findHxlTagIndex(this.bite.ingredient.comparisonValueColumn, hxlData);
 
