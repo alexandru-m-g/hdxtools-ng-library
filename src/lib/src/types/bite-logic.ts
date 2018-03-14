@@ -1,7 +1,22 @@
-import { Bite } from './bite';
+import { Bite, UIProperties, ComputedProperties } from './bite';
 export abstract class BiteLogic {
 
-  constructor(protected bite: Bite) {}
+  constructor(protected bite: Bite) {
+    if (!bite.uiProperties) {
+      bite.uiProperties = new UIProperties();
+    }
+    if (!bite.computedProperties) {
+      bite.computedProperties = new ComputedProperties();
+    }
+    if (bite['description']) {
+      bite.uiProperties.description = bite['description'];
+      delete bite['description'];
+    }
+    if (bite['title']) {
+      bite.uiProperties.title = bite['title'];
+      delete bite['title'];
+    }
+  }
 
   public resetBite(): BiteLogic {
     this.bite.dataTitle = null;
