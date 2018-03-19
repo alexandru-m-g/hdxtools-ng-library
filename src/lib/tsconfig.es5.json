@@ -14,8 +14,8 @@
     "annotateForClosureCompiler": true,
     "strictMetadataEmit": true,
     "skipTemplateCodegen": true,
-    "flatModuleOutFile": "hdxtools-ng-lib.js",
-    "flatModuleId": "hdxtools-ng-lib",
+    "flatModuleOutFile": "hxl-preview-ng-lib.js",
+    "flatModuleId": "hxl-preview-ng-lib",
     "genDir": "../../out-tsc/lib-gen-dir/"
   }
 }

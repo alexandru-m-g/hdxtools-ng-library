@@ -1,3 +1,4 @@
+import { BiteFilters, Ingredient } from './../types/ingredient';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/mergeMap';
@@ -8,6 +9,7 @@ import { HxlproxyService } from './hxlproxy.service';
 import { Bite } from '../types/bite';
 import { ChartBite } from '../types/chart-bite';
 import { KeyFigureBite } from '../types/key-figure-bite';
+import { ComparisonChartBite } from './../types/comparison-chart-bite';
 import { BiteLogicFactory } from '../types/bite-logic-factory';
 import { AggregateFunctionOptions } from '../types/ingredients';
 import { TimeseriesChartBite } from '../types/timeseries-chart-bite';
@@ -42,13 +44,37 @@ export class CookBookService {
     return recipeColumns.filter(column => this.hxlMatcher(column, dataColumn)).length !== 0;
   }
 
+  private findColsForComparisonChart(recipeColumns: string[], dataColumns: string[]): ComparisonBiteInfo[] {
+    const comparisonBiteInfoList: ComparisonBiteInfo[] = [];
+    recipeColumns.forEach(recipeCol => {
+      // comp_sections should be something like: [1st_value_hxltag, comparison_operator, 2nd_value_hxltag]
+      const comp_sections = recipeCol.split(' ');
+      if (comp_sections.length === 3) {
+        const info = new ComparisonBiteInfo(comp_sections[1]);
+        dataColumns.forEach(dataCol => {
+          if (dataCol === comp_sections[0]) {
+            info.valueCol = dataCol;
+          } else if (dataCol === comp_sections[2]) {
+            info.comparisonValueCol = dataCol;
+          }
+        });
+        if (info.isFilled()) {
+          comparisonBiteInfoList.push(info);
+        }
+      } else {
+        this.logger.error(`${recipeCol} should have 3 parts`);
+      }
+    });
+    return comparisonBiteInfoList;
+  }
+
   private determineAvailableBites(columnNames: Array<string>, hxlTags: Array<string>,
                                   biteConfigs: Array<BiteConfig>): Observable<Bite> {
 
     const bites: Observable<Bite> = new Observable<Bite>(observer => {
       biteConfigs.forEach((biteConfig) => {
         const aggregateColumns: Array<string> = [];
-        const valueColumns = biteConfig.ingredients.valueColumns;
+        const recipeColumns = biteConfig.ingredients.valueColumns;
 
         const dateColumns: Array<string> = [];
 
@@ -72,13 +98,20 @@ export class CookBookService {
         }
 
         let avValCols: string[] = [];
-        if (valueColumns) {
-          // filter the available hxlTags, and not the recipe general tags
-          avValCols = hxlTags.filter(col => this.matchInSet(col, valueColumns));
-          // avValCols = valueColumns.filter(col => this.matchInSet(col, hxlTags));
+        let comparisonBiteInfoList: ComparisonBiteInfo[] = [];
+        if (recipeColumns) {
+          if (biteConfig.type === ComparisonChartBite.type()) {
+            // avValCols will be empty in this case
+            // We need to find data column pairs that match the recipe
+            comparisonBiteInfoList = this.findColsForComparisonChart(recipeColumns, hxlTags);
+          } else {
+            // filter the available hxlTags, and not the recipe general tags
+            avValCols = hxlTags.filter(col => this.matchInSet(col, recipeColumns));
+          }
+
         }
 
-        if (biteConfig.type === 'timeseries') {
+        if (biteConfig.type === TimeseriesChartBite.type()) {
           hxlTags.forEach(col => {
             if (col.indexOf('#date') >= 0) {
               dateColumns.push(col);
@@ -86,8 +119,11 @@ export class CookBookService {
           });
         }
 
-        this.logger.info(valueColumns);
+        this.logger.info(recipeColumns);
 
+        const biteTitle = biteConfig.title;
+        const biteDescription = biteConfig.description;
+        const currentFilters = new BiteFilters(biteConfig.ingredients.filtersWith, biteConfig.ingredients.filtersWithout);
         switch (biteConfig.type) {
           case TimeseriesChartBite.type():
             dateColumns.forEach(dateColumn => {
@@ -95,12 +131,16 @@ export class CookBookService {
                 /* For count function we don't need value columns */
                 const modifiedValueColumns = aggFunction === 'count' ? ['#count'] : avValCols;
                 modifiedValueColumns.forEach(val => {
-                  const simple_bite = new TimeseriesChartBite(dateColumn, null, val, aggFunction);
+                  const general_ingredient = new Ingredient(null, val, aggFunction, dateColumn, null, null, currentFilters,
+                                                    biteTitle, biteDescription);
+                  const simple_bite = new TimeseriesChartBite(general_ingredient);
                   BiteLogicFactory.createBiteLogic(simple_bite).populateHashCode()
                     .populateWithTitle(columnNames, hxlTags);
                   observer.next(simple_bite);
                   avAggCols.forEach(agg => {
-                    const multiple_data_bite = new TimeseriesChartBite(dateColumn, agg, val, aggFunction);
+                    const ingredient = new Ingredient(agg, val, aggFunction, dateColumn, null, null, currentFilters,
+                      biteTitle, biteDescription);
+                    const multiple_data_bite = new TimeseriesChartBite(ingredient);
                     BiteLogicFactory.createBiteLogic(multiple_data_bite).populateHashCode()
                       .populateWithTitle(columnNames, hxlTags);
                     observer.next(multiple_data_bite);
@@ -110,6 +150,22 @@ export class CookBookService {
             });
 
             break;
+          case ComparisonChartBite.type():
+            aggregateFunctions.forEach(aggFunction => {
+              // We add a fake empty column for generating total comparisons (NOR grouped by any col)
+              // const avAggColsAndFake = avAggCols.concat(['']);
+              // avAggColsAndFake.forEach((agg) => {
+              avAggCols.forEach((agg) => {
+                comparisonBiteInfoList.forEach(info => {
+                  const ingredient = new Ingredient(agg, info.valueCol, aggFunction, null, info.comparisonValueCol,
+                                        info.operator, currentFilters, biteTitle, biteDescription);
+                  const bite = new ComparisonChartBite(ingredient);
+                  BiteLogicFactory.createBiteLogic(bite).populateHashCode().populateWithTitle(columnNames, hxlTags);
+                  observer.next(bite);
+                });
+              });
+            });
+            break;
           case ChartBite.type():
             aggregateFunctions.forEach(aggFunction => {
               avAggCols.forEach((agg) => {
@@ -117,7 +173,9 @@ export class CookBookService {
                 /* For count function we don't need value columns */
                 const modifiedValueColumns = aggFunction === 'count' ? ['#count'] : avValCols;
                 modifiedValueColumns.forEach(val => {
-                  const bite = new ChartBite(agg, val, aggFunction);
+                  const ingredient = new Ingredient(agg, val, aggFunction, null, null, null, currentFilters,
+                                                      biteTitle, biteDescription);
+                  const bite = new ChartBite(ingredient);
                   BiteLogicFactory.createBiteLogic(bite).populateHashCode().populateWithTitle(columnNames, hxlTags);
                   observer.next(bite);
                 });
@@ -129,7 +187,9 @@ export class CookBookService {
               /* For count function we don't need value columns */
               const modifiedValueColumns = aggFunction === 'count' ? ['#count'] : avValCols;
               modifiedValueColumns.forEach(val => {
-                const bite = new KeyFigureBite(val, aggFunction);
+                const ingredient = new Ingredient(null, val, aggFunction, null, null, null, currentFilters,
+                                          biteTitle, biteDescription);
+                const bite = new KeyFigureBite(ingredient);
                 BiteLogicFactory.createBiteLogic(bite).populateHashCode().populateWithTitle(columnNames, hxlTags);
                 observer.next(bite);
               });
@@ -175,8 +235,7 @@ export class CookBookService {
         }
       );
 
-    let temp = bites.catch(err => this.handleError(err));
-    temp.subscribe(bite => this.logger.log(bite), (error: any) => console.log('RECIPE: ' + error));
+    bites.catch(err => this.handleError(err));
 
     return bites;
   }
@@ -184,11 +243,11 @@ export class CookBookService {
   private handleError (error: Response | any) {
     let errMsg: string;
     if (error instanceof Response) {
-      try{
+      try {
         const body = error.json() || '';
         const err = body.error || JSON.stringify(body);
         errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-      } catch(e) {
+      } catch (e) {
         errMsg = e.toString();
       }
     } else {
@@ -199,4 +258,18 @@ export class CookBookService {
     return retValue;
   }
 
+}
+
+class ComparisonBiteInfo {
+  public valueCol: string;
+  public comparisonValueCol: string;
+
+  constructor(public operator: string) {}
+
+  public isFilled(): boolean {
+    if (this.valueCol && this.comparisonValueCol && this.operator) {
+      return true;
+    }
+    return false;
+  }
 }

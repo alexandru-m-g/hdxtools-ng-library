@@ -8,4 +8,8 @@ export class MyLogService {
     public log(message: any) {
         console.log(message);
     }
+
+    public error(message: any) {
+        console.error(message);
+    }
 }

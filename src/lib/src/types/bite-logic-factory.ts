@@ -1,3 +1,5 @@
+import { ComparisonChartBiteLogic } from './comparison-chart-bite-logic';
+import { ComparisonChartBite } from './comparison-chart-bite';
 import { Bite } from './bite';
 import { BiteLogic } from './bite-logic';
 import { KeyFigureBite } from './key-figure-bite';
@@ -17,6 +19,8 @@ export class BiteLogicFactory {
           return new ChartBiteLogic(bite as ChartBite);
         case TimeseriesChartBite.type():
           return new TimeseriesChartBiteLogic(bite as TimeseriesChartBite);
+        case ComparisonChartBite.type():
+          return new ComparisonChartBiteLogic(bite as ComparisonChartBite);
         default:
           return null;
       }

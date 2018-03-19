@@ -1,25 +1,41 @@
-import {Bite} from './bite';
-import { Ingredient } from './ingredient';
+import { Bite, UIProperties, ComputedProperties, DataProperties } from './bite';
+import { Ingredient, BiteFilters } from './ingredient';
 import { AggregateFunctionOptions } from './ingredients';
 
 export class ChartBite extends Bite {
-  // HXL Proxy generated: values
-  public values: any[];
-  // HXL Proxy generated: categories
-  public categories: string[];
-
-  public swapAxis = true;
-  public showGrid = true;
-  public pieChart = false;
+  static colorPattern = ['#1ebfb3', '#0077ce', '#f2645a', '#9C27B0'];
+  static SORT_DESC = 'DESC';
+  static SORT_ASC = 'ASC';
 
   static type(): string {
     return 'chart';
   }
 
-  constructor(aggregateColumn: string, valueColumn: string, aggregateFunction: AggregateFunctionOptions, title?: string) {
-    super(title);
-    this.ingredient = new Ingredient(aggregateColumn, valueColumn, aggregateFunction);
-    this.dataTitle = valueColumn;
+  constructor(ingredient: Ingredient) {
+    super(ingredient);
+    this.computedProperties = new ChartComputedProperties();
+    this.uiProperties = new ChartUIProperties();
+    this.dataProperties = new ChartDataProperties();
     this.displayCategory = 'Charts';
   }
+}
+
+
+export class ChartUIProperties extends UIProperties {
+  public swapAxis = true;
+  public showGrid = false;
+
+  public color = ChartBite.colorPattern[0];
+  public sorting: string = ChartBite.SORT_DESC;
+}
+
+export class ChartComputedProperties extends ComputedProperties {
+  public pieChart = false;
+}
+
+export class ChartDataProperties extends DataProperties {
+  // HXL Proxy generated: values
+  public values: any[];
+  // HXL Proxy generated: categories
+  public categories: string[];
 }

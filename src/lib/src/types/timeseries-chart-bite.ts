@@ -1,16 +1,24 @@
-import { ChartBite } from './chart-bite';
+import { ChartBite, ChartUIProperties } from './chart-bite';
 import { AggregateFunctionOptions } from './ingredients';
+import { BiteFilters, Ingredient } from './ingredient';
 
 export class TimeseriesChartBite extends ChartBite {
   static type(): string {
     return 'timeseries';
   }
 
-  constructor(dateColumn: string, aggregateColumn: string, valueColumn: string,
-              aggregateFunction: AggregateFunctionOptions, title?: string) {
+  constructor(ingredient: Ingredient) {
 
-    super(aggregateColumn, valueColumn, aggregateFunction, title);
-    this.ingredient.dateColumn = dateColumn;
+    super(ingredient);
     this.displayCategory = 'Timeseries';
+
+    this.uiProperties = new TimeseriesChartUIProperties();
+  }
+}
+
+export class TimeseriesChartUIProperties extends ChartUIProperties {
+  constructor() {
+    super();
+    this.color = ChartBite.colorPattern[1];
   }
 }

@@ -1,3 +1,6 @@
+import { HxlFilter } from './../types/ingredients';
+import { BiteFilters } from './../types/ingredient';
+import { CountRecipe, SpecialFilterValues } from './hxlproxy-transformers/hxl-operations';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/mergeMap';
@@ -22,6 +25,8 @@ export class HxlproxyService {
   private tagToTitleMap: any;
   private metaRows: string[][];
   private hxlFileUrl: string;
+
+  private specialFilterValues:  SpecialFilterValues = {};
 
   constructor(private logger: MyLogService, private http: Http) {}
   // constructor(private logger: Logger, private http: Http) {
@@ -55,46 +60,116 @@ export class HxlproxyService {
     return myObservable;
   }
 
+  private fetchFilterSpecialValues(filter: BiteFilters): Observable<SpecialFilterValues> {
+    interface HxlProxyInput {
+      key: string;
+      recipes: string;
+    }
+    let myObservable = new AsyncSubject<SpecialFilterValues>();
+    const inputs: HxlProxyInput[] = [];
+    const availableSpecialValues = {
+      '$MAX$': 'max',
+      '$MIN$': 'min'
+    };
+
+    const createHxlProxyRecipes =  ((pair: HxlFilter) => {
+      const column = Object.keys(pair)[0];
+      const value = pair[column];
+      if (Object.keys(availableSpecialValues).indexOf(value) >= 0) {
+        const key = `${column}-${value}`;
+        const aggFunction = availableSpecialValues[value];
+        // If we haven't yet found the special value for this column (ex: max for #date+year) then get it now
+        if (!this.specialFilterValues[key]) {
+          const countRecipe = new CountRecipe(['#fakeColumn'], [`${aggFunction}(${column})`]);
+          inputs.push({
+            recipes: JSON.stringify([countRecipe]),
+            key: key
+          });
+
+        }
+      }
+    });
+
+    if (filter) {
+      (filter.filterWith || []).forEach(createHxlProxyRecipes);
+      (filter.filterWithout || []).forEach(createHxlProxyRecipes);
+    }
+
+    const hxlProxyObservables: Observable<boolean>[] = inputs.map(input => {
+      return this.makeCallToHxlProxy([{ key: 'recipe', value: input.recipes }], response => {
+        const ret = response.json();
+        // 2 header rows then comes the data, 1 fake column
+        if (ret.length === 3 && ret[2].length > 1) {
+          const specialValue = ret[2][1];
+          this.specialFilterValues[input.key] = specialValue;
+          return true;
+        } else {
+          console.error('Didn\'t get filter special value from hxl proxy');
+          return false;
+        }
+      });
+    });
+
+    Observable.forkJoin(hxlProxyObservables).subscribe(null, null,
+              () => {
+                myObservable.next(this.specialFilterValues);
+                myObservable.complete();
+              });
+
+    return myObservable;
+  }
+
   populateBite(bite: Bite, hxlFileUrl: string): Observable<any> {
     return this.fetchMetaRows(hxlFileUrl).flatMap(
       (metarows: string[][]) => {
+        const biteLogic = BiteLogicFactory.createBiteLogic(bite);
         let transformer: AbstractHxlTransformer;
         switch (bite.ingredient.aggregateFunction) {
           case 'count':
-            transformer = new CountChartTransformer(bite);
+            transformer = new CountChartTransformer(biteLogic);
             break;
           case 'sum':
-            transformer = new SumChartTransformer(bite);
+            transformer = new SumChartTransformer(biteLogic);
             break;
           case 'distinct-count':
-            transformer = new DistinctCountChartTransformer(bite);
+            transformer = new DistinctCountChartTransformer(biteLogic);
             break;
         }
-        if (bite.ingredient.dateColumn) {
-          transformer = new TimeseriesChartTransformer(transformer, bite.ingredient.dateColumn);
+        if (biteLogic.usesDateColumn()) {
+          transformer = new TimeseriesChartTransformer(transformer, biteLogic.dateColumn);
         }
-        if (bite.filteredValues && bite.filteredValues.length > 0) {
-          transformer = new FilterSettingTransformer(transformer, bite.ingredient.valueColumn, bite.filteredValues);
-        }
+        // if (bite.filteredValues && bite.filteredValues.length > 0) {
+        //   transformer = new FilterSettingTransformer(transformer, bite.ingredient.valueColumn, bite.filteredValues);
+        // }
 
-        const recipesStr: string = transformer.generateJsonFromRecipes();
-        // this.logger.log(recipesStr);
+        return this.fetchFilterSpecialValues(bite.ingredient.filters).flatMap( specialFilterValues => {
+          if (biteLogic.hasFilters()) {
+            transformer = new FilterSettingTransformer(transformer, bite.ingredient.filters, specialFilterValues);
+          }
 
-        const biteLogic = BiteLogicFactory.createBiteLogic(bite);
-        const responseToBiteMapping = (response: Response) =>
-            biteLogic.populateWithHxlProxyInfo(response.json(), this.tagToTitleMap).getBite();
+          const recipesStr: string = transformer.generateJsonFromRecipes();
+          // this.logger.log(recipesStr);
 
-        const onErrorBiteProcessor = () => {
-          biteLogic.getBite().errorMsg = 'Error while retrieving data values';
-          return Observable.of(biteLogic.getBite());
-        }
+          const responseToBiteMapping = (response: Response) =>
+              biteLogic.populateWithHxlProxyInfo(response.json(), this.tagToTitleMap).getBite();
 
-        return this.makeCallToHxlProxy<Bite>([{key: 'recipe', value: recipesStr}], responseToBiteMapping, onErrorBiteProcessor);
+          const onErrorBiteProcessor = () => {
+            biteLogic.getBite().errorMsg = 'Error while retrieving data values';
+            return Observable.of(biteLogic.getBite());
+          };
+
+          return this.makeCallToHxlProxy<Bite>([{key: 'recipe', value: recipesStr}], responseToBiteMapping, onErrorBiteProcessor);
+        });
       }
     );
   }
 
-
+  /**
+   * Makes a call to the hxl proxy
+   * @param params parameter pairs that will be sent to the HXL Proxy in the URL (the data src url should not be specified here)
+   * @param mapFunction function that will map the result to some data structure
+   * @param errorHandler error handling function
+   */
   private makeCallToHxlProxy<T>(params: {key: string, value: string}[],
                              mapFunction: (response: Response) => T,
                              errorHandler?: () => Observable<T>): Observable<T> {
@@ -142,11 +217,11 @@ export class HxlproxyService {
   private handleError (error: Response | any, errorHandler?: () => Observable<any>) {
     let errMsg: string;
     if (error instanceof Response) {
-      try{
+      try {
         const body = error.json() || '';
         const err = body.error || JSON.stringify(body);
         errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-      } catch(e) {
+      } catch (e) {
         errMsg = e.toString();
       }
     } else {
