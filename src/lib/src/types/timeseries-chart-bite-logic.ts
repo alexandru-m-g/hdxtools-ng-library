@@ -1,7 +1,12 @@
+import { TimeseriesChartUIProperties } from './timeseries-chart-bite';
 import { ColorUsage } from './bite-logic';
 import { ChartBiteLogic } from './chart-bite-logic';
 
 export class TimeseriesChartBiteLogic extends ChartBiteLogic {
+
+  public initUIProperties(): TimeseriesChartUIProperties {
+    return new TimeseriesChartUIProperties();
+  }
 
   public populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): ChartBiteLogic {
     super.populateDataTitleWithHxlProxyInfo();
@@ -51,14 +56,13 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
 
     values.splice(0, 0, dates);
 
-    this.bite.values = values;
-    this.bite.init = true;
+    this.dataProperties.values = values;
   }
 
   private simplePopulateDataForChart(dateColIndex: number, valColIndex: number, hxlData: any[][]): void {
     if (dateColIndex >= 0 && valColIndex >= 0) {
 
-      const values = [this.bite.dataTitle];
+      const values = [this.bite.computedProperties.dataTitle];
       const categories = ['Date'];
 
       for (let i = 2; i < hxlData.length; i++) {
@@ -66,8 +70,7 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
         categories.push(hxlData[i][dateColIndex]);
       }
 
-      this.bite.values = [categories, values];
-      this.bite.init = true;
+      this.dataProperties.values = [categories, values];
     } else {
       throw new Error(`${this.bite.ingredient.valueColumn} or ${this.bite.ingredient.aggregateColumn}`
       + 'not found in hxl proxy response');
@@ -101,5 +104,9 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
       return ColorUsage.MANY;
     }
     return ColorUsage.ONE;
+  }
+
+  public get uiProperties(): TimeseriesChartUIProperties {
+    return this.bite.uiProperties as TimeseriesChartUIProperties;
   }
 }
