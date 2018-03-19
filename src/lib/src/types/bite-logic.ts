@@ -1,4 +1,4 @@
-import { Bite, UIProperties, ComputedProperties } from './bite';
+import { Bite, UIProperties, ComputedProperties, DataProperties } from './bite';
 export abstract class BiteLogic {
 
   constructor(protected bite: Bite) {
@@ -18,29 +18,32 @@ export abstract class BiteLogic {
     }
   }
 
-  public resetBite(): BiteLogic {
-    this.bite.dataTitle = null;
-    this.bite.uiProperties.title = null;
-    this.bite.uiProperties.description = null;
-    this.bite.init = false;
-    return this;
-  }
 
-  protected populateDataTitleWithHxlProxyInfo(): BiteLogic {
-    if (!this.bite.dataTitle) {
-      this.bite.dataTitle = this.bite.ingredient.valueColumn;
-    }
-    return this;
-  }
-
-  /**]
+  public abstract initUIProperties(): UIProperties;
+  public abstract initComputedProperties(): ComputedProperties;
+  public abstract initDataProperties(): DataProperties;
+  /**
    * Generally used before saving the bite. We don't want the values to be saved as well.
    * The bites should have fresh data loaded from the data source each time.
    *
    * @return {BiteLogic}
    */
   public unpopulateBite(): BiteLogic {
-    // this.bite.dataTitle = null;
+    this.bite.dataProperties = this.initDataProperties();
+    return this;
+  }
+
+  public resetBite(): BiteLogic {
+    this.bite.dataProperties = this.initDataProperties();
+    this.bite.uiProperties = this.initUIProperties();
+    this.bite.computedProperties = this.initComputedProperties();
+    return this;
+  }
+
+  protected populateDataTitleWithHxlProxyInfo(): BiteLogic {
+    if (!this.bite.computedProperties.dataTitle) {
+      this.bite.computedProperties.dataTitle = this.bite.ingredient.valueColumn;
+    }
     return this;
   }
 
@@ -158,6 +161,18 @@ export abstract class BiteLogic {
     return false;
   }
 
+  public get dataProperties(): DataProperties {
+    return this.bite.dataProperties;
+  }
+
+  public get uiProperties(): UIProperties {
+    return this.bite.uiProperties;
+  }
+
+  public get computedProperties(): ComputedProperties {
+    return this.bite.computedProperties;
+  }
+
   public get dateColumn(): string {
     return this.bite.ingredient.dateColumn;
   }
@@ -174,6 +189,11 @@ export abstract class BiteLogic {
   public get description(): string {
     const description = this.bite.uiProperties.description || this.bite.ingredient.description;
     return description;
+  }
+
+  public get dataTitle(): string {
+    const dataTitle = this.bite.uiProperties.dataTitle || this.bite.computedProperties.dataTitle;
+    return dataTitle;
   }
 
   public abstract populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): BiteLogic;
