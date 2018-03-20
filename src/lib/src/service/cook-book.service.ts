@@ -153,9 +153,8 @@ export class CookBookService {
           case ComparisonChartBite.type():
             aggregateFunctions.forEach(aggFunction => {
               // We add a fake empty column for generating total comparisons (NOR grouped by any col)
-              // const avAggColsAndFake = avAggCols.concat(['']);
-              // avAggColsAndFake.forEach((agg) => {
-              avAggCols.forEach((agg) => {
+              const avAggColsAndFake = avAggCols.length > 0 ? avAggCols : [''];
+              avAggColsAndFake.forEach((agg) => {
                 comparisonBiteInfoList.forEach(info => {
                   const ingredient = new Ingredient(agg, info.valueCol, aggFunction, null, info.comparisonValueCol,
                                         info.operator, currentFilters, biteTitle, biteDescription);
