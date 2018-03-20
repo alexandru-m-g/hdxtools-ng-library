@@ -1,4 +1,4 @@
-import { ChartBite } from './chart-bite';
+import { ChartBite, ChartUIProperties } from './chart-bite';
 import { AggregateFunctionOptions } from './ingredients';
 import { BiteFilters, Ingredient } from './ingredient';
 
@@ -10,7 +10,15 @@ export class TimeseriesChartBite extends ChartBite {
   constructor(ingredient: Ingredient) {
 
     super(ingredient);
-    this.color = ChartBite.colorPattern[1];
     this.displayCategory = 'Timeseries';
+
+    this.uiProperties = new TimeseriesChartUIProperties();
+  }
+}
+
+export class TimeseriesChartUIProperties extends ChartUIProperties {
+  constructor() {
+    super();
+    this.color = ChartBite.colorPattern[1];
   }
 }
