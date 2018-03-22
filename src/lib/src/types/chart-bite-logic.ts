@@ -41,7 +41,7 @@ export class ChartBiteLogic extends BiteLogic {
     return new ChartComputedProperties();
   }
   public initDataProperties(): ChartDataProperties {
-    throw new ChartDataProperties();
+    return new ChartDataProperties();
   }
 
   public colorUsage(): ColorUsage {

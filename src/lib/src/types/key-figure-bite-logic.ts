@@ -34,7 +34,7 @@ export class KeyFigureBiteLogic extends BiteLogic {
     return new KeyFigureComputedProperties();
   }
   public initDataProperties(): KeyFigureDataProperties {
-    throw new KeyFigureDataProperties();
+    return new KeyFigureDataProperties();
   }
 
   public colorUsage(): ColorUsage {
