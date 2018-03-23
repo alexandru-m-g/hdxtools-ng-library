@@ -1,5 +1,5 @@
 import { ColorUsage } from './bite-logic';
-import { ComparisonChartBite, ComparisonChartDataProperties } from './comparison-chart-bite';
+import { ComparisonChartBite, ComparisonChartDataProperties, ComparisonChartUIProperties } from './comparison-chart-bite';
 import { ChartBiteLogic } from './chart-bite-logic';
 
 export class ComparisonChartBiteLogic extends ChartBiteLogic {
@@ -28,9 +28,10 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
         let computedValue = hxlData[i][compColIndex];
 
         // If we have more than 1 row of data
-        if (hxlData.length > 3) {
-          computedValue = computedValue - hxlData[i][valColIndex];
-        }
+        // if (hxlData.length > 3) {
+        //   computedValue = computedValue - hxlData[i][valColIndex];
+        // }
+
         this.dataProperties.comparisonValues.push(computedValue);
       }
     } else {
@@ -40,11 +41,12 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
     return this;
   }
 
-  public get valueColumns(): string[] {
-    return [
-      this.bite.ingredient.valueColumn,
-      this.bite.ingredient.comparisonValueColumn
-    ];
+  public initUIProperties(): ComparisonChartUIProperties {
+    return new ComparisonChartUIProperties();
+  }
+
+  public initDataProperties(): ComparisonChartDataProperties {
+    return new ComparisonChartDataProperties();
   }
 
   public colorUsage(): ColorUsage {
@@ -55,7 +57,22 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
     return this.bite.dataProperties as ComparisonChartDataProperties;
   }
 
+  public get uiProperties(): ComparisonChartUIProperties {
+    return this.bite.uiProperties as ComparisonChartUIProperties;
+  }
+
+  public get valueColumns(): string[] {
+    return [
+      this.bite.ingredient.valueColumn,
+      this.bite.ingredient.comparisonValueColumn
+    ];
+  }
+
   public get comparisonValues(): any[] {
     return this.dataProperties.comparisonValues;
+  }
+
+  public get stackChart(): boolean {
+    return this.uiProperties.stackChart;
   }
 }
