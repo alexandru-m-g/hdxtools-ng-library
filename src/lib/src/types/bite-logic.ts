@@ -121,6 +121,7 @@ export abstract class BiteLogic {
         title += ' grouped by ' + groupColumn;
       }
       this.bite.computedProperties.title = title;
+      this.bite.computedProperties.dataTitle = (valueColumn && valueColumn.length > 0 ) ? valueColumn : hxlValueColumn;
     }
 
     return this;
