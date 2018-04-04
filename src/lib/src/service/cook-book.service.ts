@@ -1,10 +1,10 @@
+import { Cookbook, CookbookLibrary, BiteConfig } from './../types/bite-config';
 import { BiteFilters, Ingredient } from './../types/ingredient';
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/reduce';
 import 'rxjs/add/observable/forkJoin';
-import { BiteConfig } from '../types/bite-config';
 import { HxlproxyService } from './hxlproxy.service';
 import { Bite } from '../types/bite';
 import { ChartBite } from '../types/chart-bite';
@@ -68,7 +68,15 @@ export class CookBookService {
     return comparisonBiteInfoList;
   }
 
-  private determineAvailableBites(columnNames: Array<string>, hxlTags: Array<string>,
+  private determineCorrectCookbook(cookbooks: Cookbook[], hxlTagsInData: string[]): Cookbook {
+    if (cookbooks && cookbooks.length > 0) {
+      cookbooks[0].selected = true;
+      return cookbooks[0];
+    }
+    throw new Error('Cookbooks list is empty. Something went wrong !');
+  }
+
+  public determineAvailableBites(columnNames: Array<string>, hxlTags: Array<string>,
                                   biteConfigs: Array<BiteConfig>): Observable<Bite> {
 
     const bites: Observable<Bite> = new Observable<Bite>(observer => {
@@ -202,7 +210,7 @@ export class CookBookService {
     return bites;
   }
 
-  load(url: string, recipeUrl: string): Observable<Bite> {
+  load(url: string, recipeUrl: string): {biteObs: Observable<Bite>, cookbookAndTagsObs: Observable<CookbooksAndTags>} {
 
     // if user is using an external recipe, provided as url
     if ( typeof recipeUrl !== 'undefined' ) {
@@ -211,32 +219,70 @@ export class CookBookService {
     }
 
     const cookBooksObs: Array<Observable<Response>> = this.cookBooks.map(book => this.http.get(book));
-    const biteConfigs: Observable<BiteConfig[]> = cookBooksObs
-      .reduce((prev, current, idx) => prev.merge(current))
-      .mergeMap((res: Response) => res.json())
-      .map((biteConfig) => <BiteConfig>biteConfig)
-      .toArray();
-      // .subscribe(json => console.log(json);
-    const metaRows = this.hxlproxyService.fetchMetaRows(url);
+    const responseObs: Observable<Response> = cookBooksObs.reduce((prev, current, idx) => prev.merge(current));
 
-    const bites: Observable<Bite> = Observable.forkJoin(
-      biteConfigs,
-      metaRows
-    )
-      .mergeMap(
-        res => {
-          const configs: BiteConfig[] = res[0];
-          const rows = res[1];
-          const columnNames: string[] = rows[0];
-          const hxlTags: string[] = rows[1];
 
-          return this.determineAvailableBites(columnNames, hxlTags, configs);
-        }
-      );
+    const toListOfCookbooks = (res: Response) => {
+      const configJson = res.json();
+      let cookbooks: Cookbook[];
+      if (Array.isArray(configJson)) {
+        const recipes = <BiteConfig[]>configJson;
+        const cookbook: Cookbook = {
+          title: 'Untitled Cookbook',
+          recipes: recipes,
+          type: 'cookbook'
+        };
+        cookbooks = [cookbook];
+      } else if (configJson.type && configJson.type === 'cookbook') {
+        const cookbook = <Cookbook>configJson;
+        cookbooks = [cookbook];
+      } else if (configJson.type && configJson.type === 'cookbook-library') {
+        const cookbookLibrary = <CookbookLibrary>configJson;
+        cookbooks = cookbookLibrary.cookbooks;
+      }
+      return cookbooks;
+    };
 
-    bites.catch(err => this.handleError(err));
+    /**
+     * Observable<Response> -> Observable<Cookbook[]> with several events for each json file loaded
+     *    -> Observable<Cookbook>
+     *    -> Observable<Cookbook[]> one event containing a list with all the cookbooks from all files
+     */
+    const cookbookListObs = responseObs.mergeMap(toListOfCookbooks).toArray();
+    const metaRowsObs = this.hxlproxyService.fetchMetaRows(url);
 
-    return bites;
+    const cookbooksAndTagsObs = Observable.forkJoin(cookbookListObs, metaRowsObs).map( res => {
+      const cookbooks: Cookbook[] = res[0];
+      const rows = res[1];
+      const columnNames: string[] = rows[0];
+      const hxlTags: string[] = rows[1];
+      const chosenCookbook = this.determineCorrectCookbook(cookbooks, hxlTags);
+      return {
+        cookbooks: cookbooks,
+        chosenCookbook: chosenCookbook,
+        hxlTags: hxlTags,
+        columnNames: columnNames,
+      };
+    });
+    cookbooksAndTagsObs.catch(err => this.handleError(err));
+
+    /**
+     * publishLast() - so that an observer subscribing later would receive the last notification again
+     * refCount() - so that the first observer subscribing would trigger the start of the HTTP request
+     *            ( otherwise a connect() would've been needed)
+     */
+    const publishedCookbooksAndTagsObs = cookbooksAndTagsObs.publishLast().refCount();
+
+    const bites: Observable<Bite> = publishedCookbooksAndTagsObs.mergeMap( res => {
+        return this.determineAvailableBites(res.columnNames, res.hxlTags, res.chosenCookbook.recipes);
+    });
+
+    const availableCookbooksObs = publishedCookbooksAndTagsObs.map(res => res.cookbooks);
+
+    return {
+      biteObs: bites,
+      cookbookAndTagsObs: publishedCookbooksAndTagsObs
+    };
   }
 
   private handleError (error: Response | any) {
@@ -272,3 +318,10 @@ class ComparisonBiteInfo {
     return false;
   }
 }
+
+export interface CookbooksAndTags {
+  cookbooks: Cookbook[];
+  chosenCookbook: Cookbook;
+  hxlTags: string[];
+  columnNames: string[];
+};

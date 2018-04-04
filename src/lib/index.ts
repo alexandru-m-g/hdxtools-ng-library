@@ -13,7 +13,7 @@ export { SimpleModule } from './src/simple.module';
 // export { BiteConfig } from './src/types/bite-config';
 // export { BiteLogicFactory } from './src/types/bite-logic-factory';
 
-import { CookBookService } from './src/service/cook-book.service';
+import { CookBookService, CookbooksAndTags } from './src/service/cook-book.service';
 import { HxlproxyService } from './src/service/hxlproxy.service';
 import { AnalyticsService, GA_EVENT, GA_PAGEVIEW } from './src/service/analytics.service';
 
@@ -27,7 +27,7 @@ import { ChartBite, ChartUIProperties, ChartComputedProperties, ChartDataPropert
 import { ChartBiteLogic } from './src/types/chart-bite-logic';
 import { ColorUsage, BiteLogic } from './src/types/bite-logic';
 import { Bite, UIProperties, ComputedProperties, DataProperties } from './src/types/bite';
-import { BiteConfig } from './src/types/bite-config';
+import { BiteConfig, Cookbook } from './src/types/bite-config';
 import { BiteLogicFactory } from './src/types/bite-logic-factory';
 import { UnitsUtil } from './src/util/units-util';
 
@@ -35,6 +35,7 @@ import { UnitsUtil } from './src/util/units-util';
 export { CookBookService, HxlproxyService, AnalyticsService, KeyFigureBite, KeyFigureBiteLogic, ChartBite, ChartBiteLogic,
     TimeseriesChartBite, TimeseriesChartBiteLogic, ComparisonChartBite, ComparisonChartBiteLogic, BiteLogic,
     Bite, BiteConfig, BiteLogicFactory, ColorUsage, UnitsUtil,
+    Cookbook, CookbooksAndTags,
     UIProperties, KeyFigureUIProperties, ChartUIProperties,
     ComputedProperties, KeyFigureComputedProperties, ChartComputedProperties,
     DataProperties, KeyFigureDataProperties, ChartDataProperties, ComparisonChartDataProperties,
