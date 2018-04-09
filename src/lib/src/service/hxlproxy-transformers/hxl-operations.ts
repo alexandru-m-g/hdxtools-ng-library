@@ -54,7 +54,7 @@ class SortRecipe extends BasicRecipe {
    *
    * @param tags comma separated tags by which to sort
    */
-  constructor(public tags: string) {
+  constructor(public tags: string, public reverse: boolean) {
     super('sort');
   }
 }
@@ -130,8 +130,9 @@ export class CleanOperation extends  AbstractOperation {
 }
 
 export class SortOperation extends  AbstractOperation {
-  constructor(col: string) {
-    super(new SortRecipe(col));
+  constructor(col: string, reverse?: boolean) {
+    reverse = reverse ? reverse : false;
+    super(new SortRecipe(col, reverse));
   }
 }
 

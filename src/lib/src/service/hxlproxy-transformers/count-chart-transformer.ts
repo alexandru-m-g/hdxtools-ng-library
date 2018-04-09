@@ -1,5 +1,5 @@
 import { AbstractHxlTransformer } from './abstract-hxl-transformer';
-import { BasicRecipe, CountOperation, RenameOperation } from './hxl-operations';
+import { BasicRecipe, CountOperation, RenameOperation, SortOperation } from './hxl-operations';
 
 export class CountChartTransformer extends AbstractHxlTransformer {
 
@@ -14,6 +14,21 @@ export class CountChartTransformer extends AbstractHxlTransformer {
 
     const countOperation = new CountOperation(this.valueTags, this.groupByTags, this.aggregateFunction);
     recipes.push(countOperation.recipe);
+
+    if (this.groupByTags) {
+      let dateTag: string = null;
+      for (let i = 0; i < this.groupByTags.length; i++) {
+        const tag = this.groupByTags[i];
+        if (tag.indexOf('#date') >= 0) {
+          dateTag = tag;
+          break;
+        }
+      }
+      const sortOperation = new SortOperation(dateTag, true);
+      recipes.push(sortOperation.recipe);
+    }
+
+
 
     // let cutOperation = new CutOperation('#meta+sum', this.biteInfo.groupByTags);
     // recipes.push(cutOperation.recipe);
