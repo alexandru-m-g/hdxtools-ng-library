@@ -1,3 +1,4 @@
+import { Pattern } from './../util/hxl/pattern';
 import { Cookbook, CookbookLibrary, BiteConfig } from './../types/bite-config';
 import { BiteFilters, Ingredient } from './../types/ingredient';
 import { Injectable } from '@angular/core';
@@ -34,10 +35,7 @@ export class CookBookService {
   }
 
   private hxlMatcher(generalColumn: string, dataColumn: string): boolean {
-    if (generalColumn === dataColumn) {
-      return true;
-    }
-    return dataColumn.startsWith(generalColumn + '+');
+    return Pattern.matchPatternToColumn(generalColumn, dataColumn);
   }
 
   private matchInSet(dataColumn: string, recipeColumns: string[]): boolean {
@@ -52,9 +50,9 @@ export class CookBookService {
       if (comp_sections.length === 3) {
         const info = new ComparisonBiteInfo(comp_sections[1]);
         dataColumns.forEach(dataCol => {
-          if (dataCol === comp_sections[0]) {
+          if (Pattern.matchPatternToColumn(comp_sections[0], dataCol)) {
             info.valueCol = dataCol;
-          } else if (dataCol === comp_sections[2]) {
+          } else if (Pattern.matchPatternToColumn(comp_sections[2], dataCol)) {
             info.comparisonValueCol = dataCol;
           }
         });
@@ -68,10 +66,37 @@ export class CookBookService {
     return comparisonBiteInfoList;
   }
 
-  private determineCorrectCookbook(cookbooks: Cookbook[], hxlTagsInData: string[]): Cookbook {
+  private allCookbookPatternsMatch(hxlPatterns: string[], hxlColumns: string[]): boolean {
+    for (let i = 0; i < hxlPatterns.length; i++) {
+      const pattern = hxlPatterns[i];
+      let matches = false;
+      for (let j = 0; j < hxlColumns.length; j++) {
+        const col = hxlColumns[j];
+        if (Pattern.matchPatternToColumn(pattern, col)) {
+          matches = true;
+          break;
+        }
+      }
+      if (!matches) {
+        return false;
+      }
+    };
+    return true;
+  }
+
+  private determineCorrectCookbook(cookbooks: Cookbook[], hxlColumns: string[]): Cookbook {
     if (cookbooks && cookbooks.length > 0) {
-      cookbooks[0].selected = true;
-      return cookbooks[0];
+      let i = 0;
+      for (i = 0; i < cookbooks.length; i++) {
+        const cookbook = cookbooks[i];
+        const hxlPatterns = cookbook.columns || [];
+        hxlColumns = hxlColumns || [];
+        if (this.allCookbookPatternsMatch(hxlPatterns, hxlColumns)) {
+          break;
+        }
+      }
+      cookbooks[i].selected = true;
+      return cookbooks[i];
     }
     throw new Error('Cookbooks list is empty. Something went wrong !');
   }
