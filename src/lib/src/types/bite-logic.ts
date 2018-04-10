@@ -88,13 +88,14 @@ export abstract class BiteLogic {
   };
 
   public populateWithTitle(columnNames: string[], hxlTags: string[]): BiteLogic {
-    if (!this.bite.ingredient.title) {
-      const availableTags = {};
-      hxlTags.forEach((v, idx) => availableTags[v] = idx);
+    const availableTags = {};
+    hxlTags.forEach((v, idx) => availableTags[v] = idx);
 
-      const valueColumn = columnNames[availableTags[this.bite.ingredient.valueColumn]];
-      const hxlValueColumn = hxlTags[availableTags[this.bite.ingredient.valueColumn]];
-      const groupColumn = columnNames[availableTags[this.bite.ingredient.aggregateColumn]];
+    const valueColumn = columnNames[availableTags[this.bite.ingredient.valueColumn]];
+    const hxlValueColumn = hxlTags[availableTags[this.bite.ingredient.valueColumn]];
+    const groupColumn = columnNames[availableTags[this.bite.ingredient.aggregateColumn]];
+
+    if (!this.bite.ingredient.title) {
       let aggFunction = null;
       switch (this.bite.ingredient.aggregateFunction) {
         case 'count':
@@ -121,8 +122,8 @@ export abstract class BiteLogic {
         title += ' grouped by ' + groupColumn;
       }
       this.bite.computedProperties.title = title;
-      this.bite.computedProperties.dataTitle = (valueColumn && valueColumn.length > 0 ) ? valueColumn : hxlValueColumn;
     }
+    this.bite.computedProperties.dataTitle = (valueColumn && valueColumn.length > 0 ) ? valueColumn : hxlValueColumn;
 
     return this;
   }

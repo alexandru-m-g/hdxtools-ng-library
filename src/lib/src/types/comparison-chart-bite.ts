@@ -1,6 +1,6 @@
 import { AggregateFunctionOptions } from './ingredients';
 import { BiteFilters, Ingredient } from './ingredient';
-import { ChartBite, ChartDataProperties, ChartUIProperties } from './chart-bite';
+import {ChartBite, ChartComputedProperties, ChartDataProperties, ChartUIProperties} from "./chart-bite";
 
 export class ComparisonChartBite extends ChartBite {
 
@@ -11,6 +11,8 @@ export class ComparisonChartBite extends ChartBite {
   constructor(ingredient: Ingredient) {
     super(ingredient);
     this.dataProperties = new ComparisonChartDataProperties();
+    this.uiProperties = new ComparisonChartUIProperties();
+    this.computedProperties = new ComparisonChartComputedProperties();
 
   }
 
@@ -20,6 +22,14 @@ export class ComparisonChartDataProperties extends ChartDataProperties {
   public comparisonValues: any[];
 }
 
+export class ComparisonChartComputedProperties extends ChartComputedProperties {
+    public comparisonDataTitle: string;
+}
+
 export class ComparisonChartUIProperties extends ChartUIProperties {
   public stackChart = false;
+  public comparisonDataTitle: string;
+  public comparisonColor = ChartBite.colorPattern[1];
 }
+
+

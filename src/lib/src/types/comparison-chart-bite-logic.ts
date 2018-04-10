@@ -1,5 +1,10 @@
-import { ColorUsage } from './bite-logic';
-import { ComparisonChartBite, ComparisonChartDataProperties, ComparisonChartUIProperties } from './comparison-chart-bite';
+import {BiteLogic, ColorUsage} from './bite-logic';
+import {
+    ComparisonChartBite,
+    ComparisonChartComputedProperties,
+    ComparisonChartDataProperties,
+    ComparisonChartUIProperties
+} from './comparison-chart-bite';
 import { ChartBiteLogic } from './chart-bite-logic';
 
 export class ComparisonChartBiteLogic extends ChartBiteLogic {
@@ -41,6 +46,30 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
     return this;
   }
 
+  protected populateDataTitleWithHxlProxyInfo(): BiteLogic {
+    super.populateDataTitleWithHxlProxyInfo();
+      let computedProperties: ComparisonChartComputedProperties = (<ComparisonChartComputedProperties>this.bite.computedProperties);
+      if (!computedProperties.comparisonDataTitle) {
+          let ingredient = this.bite.ingredient;
+          computedProperties.comparisonDataTitle = ingredient.comparisonValueColumn;
+      }
+    return this;
+  }
+
+
+  public populateWithTitle(columnNames: string[], hxlTags: string[]): BiteLogic {
+    super.populateWithTitle(columnNames, hxlTags);
+    let computedProperties: ComparisonChartComputedProperties = (<ComparisonChartComputedProperties>this.bite.computedProperties);
+    const availableTags = {};
+    hxlTags.forEach((v, idx) => availableTags[v] = idx);
+
+    let ingrValColumn = this.bite.ingredient.comparisonValueColumn;
+    const valueColumn = columnNames[availableTags[ingrValColumn]];
+    const hxlValueColumn = hxlTags[availableTags[ingrValColumn]];
+    computedProperties.comparisonDataTitle = (valueColumn && valueColumn.length > 0 ) ? valueColumn : hxlValueColumn;
+    return this;
+  }
+
   public initUIProperties(): ComparisonChartUIProperties {
     return new ComparisonChartUIProperties();
   }
@@ -75,4 +104,16 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
   public get stackChart(): boolean {
     return this.uiProperties.stackChart;
   }
+
+  public get comparisonDataTitle(): string {
+    let uiProperties: ComparisonChartUIProperties = (<ComparisonChartUIProperties>this.bite.uiProperties);
+    let computedProperties: ComparisonChartComputedProperties = (<ComparisonChartComputedProperties>this.bite.computedProperties);
+    const comparisonDataTitle = uiProperties.comparisonDataTitle || computedProperties.comparisonDataTitle;
+    return comparisonDataTitle;
+  }
+
+  public get comparisonColor(): string {
+    return this.uiProperties.comparisonColor;
+  }
+
 }
