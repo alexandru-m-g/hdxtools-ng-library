@@ -93,7 +93,7 @@ export abstract class AbstractOperation {
 
 export class CountOperation extends AbstractOperation {
   constructor(valueCols: string[], aggCols: string[], operation: string) {
-    let aggColumns: any[];
+    let aggColumns: any[] = [];
     if ( aggCols && aggCols.length > 0 ) {
       aggColumns = aggCols.filter( (value: string) => Boolean(value) );
     }

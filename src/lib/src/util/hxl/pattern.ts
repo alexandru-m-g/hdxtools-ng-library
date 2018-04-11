@@ -20,9 +20,9 @@ export class Pattern {
         const pattern = Pattern.parse(hxlPattern);
         result = pattern.matchHxlColumn(hxlColumn);
         Pattern.matchingResultsMap[key] = result;
-        console.log(`Match computed for ${key} -> ${result}`);
+        // console.log(`Match computed for ${key} -> ${result}`);
       } else {
-        console.log(`Match result found in cache for ${key} -> ${result}`);
+        // console.log(`Match result found in cache for ${key} -> ${result}`);
       }
       return result;
     }

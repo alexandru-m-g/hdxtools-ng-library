@@ -84,19 +84,31 @@ export class CookBookService {
     return true;
   }
 
-  private determineCorrectCookbook(cookbooks: Cookbook[], hxlColumns: string[]): Cookbook {
+  private determineCorrectCookbook(cookbooks: Cookbook[], hxlColumns: string[], chosenCookbookName?: string): Cookbook {
+    const checkByName = (cookbook: Cookbook) => cookbook.name === chosenCookbookName;
+    const checkByPattern = (cookbook: Cookbook) => {
+      const hxlPatterns = cookbook.columns || [];
+        hxlColumns = hxlColumns || [];
+        if (this.allCookbookPatternsMatch(hxlPatterns, hxlColumns)) {
+          return true;
+        }
+        return false;
+    };
+
+    const check = chosenCookbookName ? checkByName : checkByPattern;
+
     if (cookbooks && cookbooks.length > 0) {
+      let selectedCookbook = cookbooks[0];
       let i = 0;
       for (i = 0; i < cookbooks.length; i++) {
         const cookbook = cookbooks[i];
-        const hxlPatterns = cookbook.columns || [];
-        hxlColumns = hxlColumns || [];
-        if (this.allCookbookPatternsMatch(hxlPatterns, hxlColumns)) {
+        if (check(cookbook)) {
+          selectedCookbook = cookbooks[i];
           break;
         }
       }
-      cookbooks[i].selected = true;
-      return cookbooks[i];
+      selectedCookbook.selected = true;
+      return selectedCookbook;
     }
     throw new Error('Cookbooks list is empty. Something went wrong !');
   }
@@ -235,15 +247,18 @@ export class CookBookService {
     return bites;
   }
 
-  load(url: string, recipeUrl: string): {biteObs: Observable<Bite>, cookbookAndTagsObs: Observable<CookbooksAndTags>} {
+  load(url: string, recipeUrl: string, chosenCookbookName?: string):
+          {biteObs: Observable<Bite>, cookbookAndTagsObs: Observable<CookbooksAndTags>} {
+
+    let cookbookUrls = this.cookBooks;
 
     // if user is using an external recipe, provided as url
     if ( typeof recipeUrl !== 'undefined' ) {
       this.logger.info('Using external recipe from: ' + recipeUrl);
-      this.cookBooks = [recipeUrl];
+      cookbookUrls = [recipeUrl];
     }
 
-    const cookBooksObs: Array<Observable<Response>> = this.cookBooks.map(book => this.http.get(book));
+    const cookBooksObs: Array<Observable<Response>> = cookbookUrls.map(book => this.http.get(book));
     const responseObs: Observable<Response> = cookBooksObs.reduce((prev, current, idx) => prev.merge(current));
 
 
@@ -281,7 +296,7 @@ export class CookBookService {
       const rows = res[1];
       const columnNames: string[] = rows[0];
       const hxlTags: string[] = rows[1];
-      const chosenCookbook = this.determineCorrectCookbook(cookbooks, hxlTags);
+      const chosenCookbook = this.determineCorrectCookbook(cookbooks, hxlTags, chosenCookbookName);
       return {
         cookbooks: cookbooks,
         chosenCookbook: chosenCookbook,

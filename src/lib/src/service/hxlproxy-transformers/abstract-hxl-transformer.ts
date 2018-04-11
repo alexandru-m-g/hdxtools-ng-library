@@ -14,7 +14,7 @@ export abstract class AbstractHxlTransformer {
       const bite = biteLogic.getBite();
       this.type = bite.type;
       this.valueTags = biteLogic.valueColumns;
-      this.groupByTags = [bite.ingredient.aggregateColumn];
+      this.groupByTags = bite.ingredient.aggregateColumn ? [bite.ingredient.aggregateColumn] : [];
       this.aggregateFunction = bite.ingredient.aggregateFunction;
     }
   }
