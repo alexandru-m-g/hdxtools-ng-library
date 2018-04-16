@@ -27,6 +27,7 @@ export class ChartUIProperties extends UIProperties {
 
   public color = ChartBite.colorPattern[0];
   public sorting: string = ChartBite.SORT_DESC;
+  public limit: number;
 }
 
 export class ChartComputedProperties extends ComputedProperties {

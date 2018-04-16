@@ -83,6 +83,10 @@ export class ChartBiteLogic extends BiteLogic {
     return this.uiProperties.sorting;
   }
 
+  public get limit(): number {
+      return this.uiProperties.limit;
+  }
+
   public get categories(): string[] {
     return this.dataProperties.categories;
   }
