@@ -15,6 +15,7 @@ export abstract class BiteLogic {
    */
   public unpopulateBite(): BiteLogic {
     this.bite.dataProperties = this.initDataProperties();
+    this.bite.tempShowSaveCancelButtons = false;
     return this;
   }
 
@@ -22,6 +23,7 @@ export abstract class BiteLogic {
     this.bite.dataProperties = this.initDataProperties();
     this.bite.uiProperties = this.initUIProperties();
     this.bite.computedProperties = this.initComputedProperties();
+    this.bite.tempShowSaveCancelButtons = false;
     return this;
   }
 
@@ -181,6 +183,14 @@ export abstract class BiteLogic {
   public get dataTitle(): string {
     const dataTitle = this.bite.uiProperties.dataTitle || this.bite.computedProperties.dataTitle;
     return dataTitle;
+  }
+
+  public get tempShowSaveCancelButtons(): boolean {
+    this.bite.tempShowSaveCancelButtons = this.bite.tempShowSaveCancelButtons || false;
+    return this.bite.tempShowSaveCancelButtons;
+  }
+  public set tempShowSaveCancelButtons(tempShowSaveCancelButtons: boolean) {
+    this.bite.tempShowSaveCancelButtons = tempShowSaveCancelButtons;
   }
 
   public abstract populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): BiteLogic;

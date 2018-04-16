@@ -30,7 +30,8 @@ export abstract class Bite {
   // Timeseries or Charts or Key Figures
   public displayCategory: string;
 
-  // public description: string;
+  public tempShowSaveCancelButtons = false;
+
 
   static type(): string {
     return 'bite';
