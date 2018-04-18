@@ -62,20 +62,18 @@ export class Pattern {
 
   private matchAttributes(colAttributes: Set<string>): boolean {
     let attributesMatch = true;
-    if (colAttributes) {
-      this.includeAttributes.forEach( inclAttribute => {
-        if (!colAttributes.has(inclAttribute)) {
+    this.includeAttributes.forEach(inclAttribute => {
+      if (!colAttributes.has(inclAttribute)) {
+        attributesMatch = false;
+      }
+    });
+
+    if (attributesMatch) {
+      this.excludeAttributes.forEach(exclAttribute => {
+        if (colAttributes.has(exclAttribute)) {
           attributesMatch = false;
         }
       });
-
-      if (attributesMatch) {
-        this.excludeAttributes.forEach( exclAttribute => {
-          if (colAttributes.has(exclAttribute)) {
-            attributesMatch = false;
-          }
-        });
-      }
     }
     return attributesMatch;
   }
@@ -85,7 +83,7 @@ export class Pattern {
      * Based on https://github.com/HXLStandard/libhxl-js/blob/master/hxl.js hxl.classes.Column.parse()
      */
     const result = hxlColumn.match(/^\s*(#[A-Za-z][A-Za-z0-9_]*)((\s*\+[A-Za-z][A-Za-z0-9_]*)*)?\s*$/);
-    let colAttributes: Set<string>;
+    let colAttributes: Set<string> = new Set<string>();
     if (result) {
         if (result[2]) {
             // filter out empty values
