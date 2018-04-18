@@ -30,7 +30,7 @@ export class CookBookService {
     this.cookBooks = [
       // 'assets/bites-chart.json',
       // 'assets/bites-key-figure.json',
-      'assets/bites.json',
+      'https://raw.githubusercontent.com/OCHA-DAP/hxl-recipes/0.0.1-a1/recipes/cookbook-library.json',
     ];
   }
 
