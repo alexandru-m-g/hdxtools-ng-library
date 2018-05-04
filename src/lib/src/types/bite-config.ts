@@ -22,6 +22,10 @@ export interface Cookbook {
   columns?: string[];
   recipes: BiteConfig[];
   selected?: boolean;
+  /**
+   * This is used in a cookbook library. This cookbook will be chosen in case none match.
+   */
+  default?: boolean;
 }
 
 export interface CookbookLibrary {

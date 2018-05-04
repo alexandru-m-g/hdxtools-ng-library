@@ -99,6 +99,14 @@ export class CookBookService {
 
     if (cookbooks && cookbooks.length > 0) {
       let selectedCookbook = cookbooks[0];
+
+      // Setting default cookbook for the case when none will match
+      for (let idx = 0; idx < cookbooks.length; idx++) {
+        if (cookbooks[idx].default) {
+          selectedCookbook = cookbooks[idx];
+          break;
+        }
+      }
       let i = 0;
       for (i = 0; i < cookbooks.length; i++) {
         const cookbook = cookbooks[i];
