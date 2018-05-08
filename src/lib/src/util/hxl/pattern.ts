@@ -25,8 +25,10 @@ export class Pattern {
         // console.log(`Match result found in cache for ${key} -> ${result}`);
       }
       return result;
+    } else if (!hxlColumn || !hxlColumn.trim()) {
+      return false;
     }
-    throw new Error('Either hxlPattern or hxlColumn is null');
+    throw new Error('hxlPattern should not be empty');
   }
 
   private static parse(hxlPattern: string) {
