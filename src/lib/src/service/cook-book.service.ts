@@ -24,14 +24,14 @@ export class CookBookService {
 
   private config: { [s: string]: string; } = {};
 
-  private cookBooks: string[];
+  // private cookBooks: string[];
 
   constructor(private logger: MyLogService, private hxlproxyService: HxlproxyService, private http: Http) {
-    this.cookBooks = [
-      // 'assets/bites-chart.json',
-      // 'assets/bites-key-figure.json',
-      'https://raw.githubusercontent.com/OCHA-DAP/hxl-recipes/1.0.0/cookbook-library.json',
-    ];
+    // this.cookBooks = [
+    //   // 'assets/bites-chart.json',
+    //   // 'assets/bites-key-figure.json',
+    //   'https://raw.githubusercontent.com/OCHA-DAP/hxl-recipes/1.0.0/cookbook-library.json',
+    // ];
   }
 
   private hxlMatcher(generalColumn: string, dataColumn: string): boolean {
@@ -258,13 +258,7 @@ export class CookBookService {
   load(url: string, recipeUrl: string, chosenCookbookName?: string):
           {biteObs: Observable<Bite>, cookbookAndTagsObs: Observable<CookbooksAndTags>} {
 
-    let cookbookUrls = this.cookBooks;
-
-    // if user is using an external recipe, provided as url
-    if ( typeof recipeUrl !== 'undefined' ) {
-      this.logger.info('Using external recipe from: ' + recipeUrl);
-      cookbookUrls = [recipeUrl];
-    }
+    let cookbookUrls = [recipeUrl];
 
     const cookBooksObs: Array<Observable<Response>> = cookbookUrls.map(book => this.http.get(book));
     const responseObs: Observable<Response> = cookBooksObs.reduce((prev, current, idx) => prev.merge(current));
