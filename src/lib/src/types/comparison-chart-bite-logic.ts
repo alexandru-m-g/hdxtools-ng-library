@@ -108,7 +108,9 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
   public get comparisonDataTitle(): string {
     let uiProperties: ComparisonChartUIProperties = (<ComparisonChartUIProperties>this.bite.uiProperties);
     let computedProperties: ComparisonChartComputedProperties = (<ComparisonChartComputedProperties>this.bite.computedProperties);
-    const comparisonDataTitle = uiProperties.comparisonDataTitle || computedProperties.comparisonDataTitle;
+
+    const defaultDataTitle = computedProperties.comparisonDataTitle;
+    const comparisonDataTitle = uiProperties.comparisonDataTitle == null ? defaultDataTitle : uiProperties.comparisonDataTitle;
     return comparisonDataTitle;
   }
 

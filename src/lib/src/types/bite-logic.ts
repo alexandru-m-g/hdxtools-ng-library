@@ -171,17 +171,20 @@ export abstract class BiteLogic {
   }
 
   public get title(): string {
-    const title = this.bite.uiProperties.title || this.bite.ingredient.title || this.bite.computedProperties.title;
+    const defaultTitle = this.bite.ingredient.title || this.bite.computedProperties.title;
+    const title = (this.bite.uiProperties.title == null ? defaultTitle : this.bite.uiProperties.title);
     return title;
   }
 
   public get description(): string {
-    const description = this.bite.uiProperties.description || this.bite.ingredient.description;
+    const defaultDescription = this.bite.ingredient.description;
+    const description = this.bite.uiProperties.description == null ? defaultDescription : this.bite.uiProperties.description ;
     return description;
   }
 
   public get dataTitle(): string {
-    const dataTitle = this.bite.uiProperties.dataTitle || this.bite.computedProperties.dataTitle;
+    const defaultDataTitle = this.bite.computedProperties.dataTitle;
+    const dataTitle = this.bite.uiProperties.dataTitle == null ? defaultDataTitle : this.bite.uiProperties.dataTitle;
     return dataTitle;
   }
 

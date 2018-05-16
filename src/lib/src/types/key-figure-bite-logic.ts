@@ -66,7 +66,8 @@ export class KeyFigureBiteLogic extends BiteLogic {
   }
 
   public get unit(): string {
-    return this.uiProperties.unit || this.computedProperties.unit;
+      const defaultUnit = this.computedProperties.unit;
+      return this.uiProperties.unit == null ? defaultUnit : this.uiProperties.unit;
   }
 
   public get value(): number {
