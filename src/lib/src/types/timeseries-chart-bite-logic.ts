@@ -8,6 +8,13 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
     return new TimeseriesChartUIProperties();
   }
 
+  public populateWithTitle(columnNames: string[], hxlTags: string[]): TimeseriesChartBiteLogic {
+    super.populateWithTitle(columnNames, hxlTags);
+    const dateColumn = columnNames[this.tagToIndexMap[this.bite.ingredient.dateColumn]];
+    this.bite.computedProperties.title += ` based on ${dateColumn}`;
+    return this;
+  }
+
   public populateWithHxlProxyInfo(hxlData: any[][], tagToTitleMap: any): ChartBiteLogic {
     super.populateDataTitleWithHxlProxyInfo();
 
@@ -22,6 +29,12 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
       this.simplePopulateDataForChart(dateColIndex, valColIndex, hxlData);
     }
     return this;
+  }
+
+  protected buildImportantPropertiesList(): string[] {
+    const importantProperties = super.buildImportantPropertiesList();
+    importantProperties.push(this.bite.ingredient.dateColumn);
+    return importantProperties;
   }
 
   private multipleLinePopulateDataForChart(aggColIndex: number, hxlData: any[][], dateColIndex: number,

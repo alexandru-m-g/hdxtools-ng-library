@@ -1,6 +1,8 @@
 import { Bite, UIProperties, ComputedProperties, DataProperties } from './bite';
 export abstract class BiteLogic {
 
+  protected tagToIndexMap: { [s: string]: number; } = {};
+
   constructor(protected bite: Bite) {}
 
 
@@ -90,12 +92,11 @@ export abstract class BiteLogic {
   };
 
   public populateWithTitle(columnNames: string[], hxlTags: string[]): BiteLogic {
-    const availableTags = {};
-    hxlTags.forEach((v, idx) => availableTags[v] = idx);
+    hxlTags.forEach((v, idx) => this.tagToIndexMap[v] = idx);
 
-    const valueColumn = columnNames[availableTags[this.bite.ingredient.valueColumn]];
-    const hxlValueColumn = hxlTags[availableTags[this.bite.ingredient.valueColumn]];
-    const groupColumn = columnNames[availableTags[this.bite.ingredient.aggregateColumn]];
+    const valueColumn = columnNames[this.tagToIndexMap[this.bite.ingredient.valueColumn]];
+    const hxlValueColumn = hxlTags[this.tagToIndexMap[this.bite.ingredient.valueColumn]];
+    const groupColumn = columnNames[this.tagToIndexMap[this.bite.ingredient.aggregateColumn]];
 
     if (!this.bite.ingredient.title) {
       let aggFunction = null;
