@@ -4,16 +4,18 @@ import { MyLogService } from './mylog.service';
 declare const ga: any;
 declare const mixpanel: any;
 
-export type MapOfStrings = { [s: string]: string|boolean|number; };
-export type GaExtras = {
-  'type'?: string,
-  'label'?: string,
-  'action'?: string,
-  'value'?: number,
-};
-
 export const GA_PAGEVIEW = 'pageview';
 export const GA_EVENT = 'event';
+
+export type MapOfStrings = { [s: string]: string|boolean|number; };
+export type GaExtras = {
+  'type'?: 'pageview' | 'event',
+  'label'?: string,
+  'action'?: string,
+  'category'?: string,
+  'value'?: number,
+  'dimensionInfo'?: MapOfStrings
+};
 
 /**
  * Service that will try to abstract sending the analytics events
@@ -102,10 +104,11 @@ export class AnalyticsService {
 
     const gaData = {
       type: additionalGaData.type || GA_EVENT,
-      category: category,
+      category: additionalGaData.category || category,
       action: additionalGaData.action || null,
       label: additionalGaData.label || pageTitle || null,
-      value: additionalGaData.value || null
+      value: additionalGaData.value || null,
+      dimensionInfo: additionalGaData.dimensionInfo
     };
 
     const mpData = {
@@ -125,12 +128,25 @@ export class AnalyticsService {
 
   private send(gaData: any, mpData: any) {
     // this.logger.info('Logging the event...');
+    let gaDimensionInfo = null;
+    if (gaData.dimensionInfo) {
+      gaDimensionInfo = gaData.dimensionInfo;
+    }
     if (this.gaInitialised) {
       // this.logger.info('    Google Analytics - ok');
       if (GA_PAGEVIEW === gaData.type) {
         ga('send', 'pageview');
       } else {
-        ga('send', gaData.type, gaData.category, gaData.action, gaData.label, gaData.value);
+        // ga('send', gaData.type, gaData.category, gaData.action, gaData.label, gaData.value, gaDimensionInfo);
+        const sendData = Object.assign({
+          'hitType': gaData.type,
+          'eventCategory': gaData.category,
+          'eventAction': gaData.action,
+          'eventLabel': gaData.label,
+          'eventValue': gaData.value
+        }, gaDimensionInfo);
+
+        ga('send', sendData);
       }
     }
 

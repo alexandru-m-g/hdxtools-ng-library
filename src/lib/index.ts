@@ -15,7 +15,7 @@ export { SimpleModule } from './src/simple.module';
 
 import { CookBookService, CookbooksAndTags } from './src/service/cook-book.service';
 import { HxlproxyService } from './src/service/hxlproxy.service';
-import { AnalyticsService, GA_EVENT, GA_PAGEVIEW } from './src/service/analytics.service';
+import { AnalyticsService, GA_EVENT, GA_PAGEVIEW, GaExtras } from './src/service/analytics.service';
 
 import { KeyFigureBiteLogic } from './src/types/key-figure-bite-logic';
 import { KeyFigureBite, KeyFigureUIProperties, KeyFigureComputedProperties, KeyFigureDataProperties } from './src/types/key-figure-bite';
@@ -39,4 +39,4 @@ export { CookBookService, HxlproxyService, AnalyticsService, KeyFigureBite, KeyF
     UIProperties, KeyFigureUIProperties, ChartUIProperties,
     ComputedProperties, KeyFigureComputedProperties, ChartComputedProperties,
     DataProperties, KeyFigureDataProperties, ChartDataProperties, ComparisonChartDataProperties,
-    GA_EVENT, GA_PAGEVIEW }
+    GA_EVENT, GA_PAGEVIEW, GaExtras }
