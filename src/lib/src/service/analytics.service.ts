@@ -7,7 +7,7 @@ declare const mixpanel: any;
 export const GA_PAGEVIEW = 'pageview';
 export const GA_EVENT = 'event';
 
-export type MapOfStrings = { [s: string]: string|boolean|number; };
+export type MapOfStrings = { [s: string]: string|boolean|number|string[]; };
 export type GaExtras = {
   'type'?: 'pageview' | 'event',
   'label'?: string,
