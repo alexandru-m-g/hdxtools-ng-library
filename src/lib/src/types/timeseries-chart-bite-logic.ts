@@ -11,7 +11,7 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
   public populateWithTitle(columnNames: string[], hxlTags: string[]): TimeseriesChartBiteLogic {
     super.populateWithTitle(columnNames, hxlTags);
     const dateColumn = columnNames[this.tagToIndexMap[this.bite.ingredient.dateColumn]];
-    this.bite.computedProperties.title += ` based on ${dateColumn}`;
+    this.bite.computedProperties.title += ` by ${dateColumn}`;
     return this;
   }
 

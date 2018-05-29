@@ -122,7 +122,7 @@ export abstract class BiteLogic {
         title += ' ' + hxlValueColumn;
       }
       if (groupColumn && groupColumn.trim().length > 0) {
-        title += ' grouped by ' + groupColumn;
+        title += ' by ' + groupColumn;
       }
       this.bite.computedProperties.title = title;
     }
