@@ -46,7 +46,7 @@ export class ChartBiteLogic extends BiteLogic {
 
   public colorUsage(): ColorUsage {
     if (this.pieChart) {
-      return ColorUsage.MANY;
+      return ColorUsage.NONE;
     }
     return ColorUsage.ONE;
   }
