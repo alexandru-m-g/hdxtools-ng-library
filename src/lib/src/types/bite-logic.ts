@@ -13,7 +13,7 @@ export abstract class BiteLogic {
    * Generally used before saving the bite. We don't want the values to be saved as well.
    * The bites should have fresh data loaded from the data source each time.
    *
-   * @return {BiteLogic}
+   * @return
    */
   public unpopulateBite(): BiteLogic {
     this.bite.dataProperties = this.initDataProperties();
