@@ -1,9 +1,12 @@
+
+import { throwError as observableThrowError,  Observable ,  AsyncSubject, forkJoin, of } from 'rxjs';
+import { catchError, flatMap, map } from 'rxjs/operators';
 import { HxlFilter } from './../types/ingredients';
 import { BiteFilters } from './../types/ingredient';
 import { CountRecipe, SpecialFilterValues } from './hxlproxy-transformers/hxl-operations';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import 'rxjs/add/operator/mergeMap';
+import { HttpClient } from '@angular/common/http';
+
 import { SumChartTransformer } from './hxlproxy-transformers/sum-chart-transformer';
 import { Bite } from '../types/bite';
 import { AbstractHxlTransformer } from './hxlproxy-transformers/abstract-hxl-transformer';
@@ -12,8 +15,6 @@ import { CountChartTransformer } from './hxlproxy-transformers/count-chart-trans
 import { DistinctCountChartTransformer } from './hxlproxy-transformers/distinct-count-chart-transformer';
 import { TimeseriesChartTransformer } from './hxlproxy-transformers/timeseries-chart-transformer';
 import { FilterSettingTransformer } from './hxlproxy-transformers/filter-setting-transformer';
-import { Observable } from 'rxjs/Observable';
-import { AsyncSubject } from 'rxjs/AsyncSubject';
 import { MyLogService } from './mylog.service';
 import 'rxjs/Rx';
 
@@ -28,7 +29,7 @@ export class HxlproxyService {
 
   private specialFilterValues:  SpecialFilterValues = {};
 
-  constructor(private logger: MyLogService, private http: Http) {}
+  constructor(private logger: MyLogService, private httpClient: HttpClient) {}
   // constructor(private logger: Logger, private http: Http) {
     // let observable = this.getMetaRows('https://test-data.humdata.org/dataset/' +
     //   '8b154975-4871-4634-b540-f6c77972f538/resource/3630d818-344b-4bee-b5b0-6ddcfdc28fc8/download/eed.csv');
@@ -96,8 +97,8 @@ export class HxlproxyService {
     }
 
     const hxlProxyObservables: Observable<boolean>[] = inputs.map(input => {
-      return this.makeCallToHxlProxy([{ key: 'recipe', value: input.recipes }], response => {
-        const ret = response.json();
+      return this.makeCallToHxlProxy([{ key: 'recipe', value: input.recipes }], (response: any) => {
+        const ret: string[][] = response;
         // 2 header rows then comes the data, 1 fake column
         if (ret.length === 3 && ret[2].length > 1) {
           const specialValue = ret[2][1];
@@ -110,58 +111,67 @@ export class HxlproxyService {
       });
     });
 
-    Observable.forkJoin(hxlProxyObservables).subscribe(null, null,
-              () => {
-                myObservable.next(this.specialFilterValues);
-                myObservable.complete();
-              });
+    forkJoin(hxlProxyObservables).subscribe(null, null,
+      () => {
+        myObservable.next(this.specialFilterValues);
+        myObservable.complete();
+      });
 
     return myObservable;
   }
 
   populateBite(bite: Bite, hxlFileUrl: string): Observable<any> {
-    return this.fetchMetaRows(hxlFileUrl).flatMap(
-      (metarows: string[][]) => {
-        const biteLogic = BiteLogicFactory.createBiteLogic(bite);
-        let transformer: AbstractHxlTransformer;
-        switch (bite.ingredient.aggregateFunction) {
-          case 'count':
-            transformer = new CountChartTransformer(biteLogic);
-            break;
-          case 'sum':
-            transformer = new SumChartTransformer(biteLogic);
-            break;
-          case 'distinct-count':
-            transformer = new DistinctCountChartTransformer(biteLogic);
-            break;
-        }
-        if (biteLogic.usesDateColumn()) {
-          transformer = new TimeseriesChartTransformer(transformer, biteLogic.dateColumn);
-        }
-        // if (bite.filteredValues && bite.filteredValues.length > 0) {
-        //   transformer = new FilterSettingTransformer(transformer, bite.ingredient.valueColumn, bite.filteredValues);
-        // }
+    return this.fetchMetaRows(hxlFileUrl)
+        .pipe(
+            flatMap(
+                (metarows: string[][]) => {
+                    const biteLogic = BiteLogicFactory.createBiteLogic(bite);
+                    let transformer: AbstractHxlTransformer;
+                    switch (bite.ingredient.aggregateFunction) {
+                        case 'count':
+                            transformer = new CountChartTransformer(biteLogic);
+                            break;
+                        case 'sum':
+                            transformer = new SumChartTransformer(biteLogic);
+                            break;
+                        case 'distinct-count':
+                            transformer = new DistinctCountChartTransformer(biteLogic);
+                            break;
+                    }
+                    if (biteLogic.usesDateColumn()) {
+                        transformer = new TimeseriesChartTransformer(transformer, biteLogic.dateColumn);
+                    }
+                    // if (bite.filteredValues && bite.filteredValues.length > 0) {
+                    //   transformer = new FilterSettingTransformer(transformer, bite.ingredient.valueColumn, bite.filteredValues);
+                    // }
 
-        return this.fetchFilterSpecialValues(bite.ingredient.filters).flatMap( specialFilterValues => {
-          if (biteLogic.hasFilters()) {
-            transformer = new FilterSettingTransformer(transformer, bite.ingredient.filters, specialFilterValues);
-          }
+                    return this.fetchFilterSpecialValues(bite.ingredient.filters)
+                        .pipe(
+                            flatMap( (specialFilterValues: SpecialFilterValues) => {
+                                if (biteLogic.hasFilters()) {
+                                    transformer = new FilterSettingTransformer(transformer, bite.ingredient.filters, specialFilterValues);
+                                }
 
-          const recipesStr: string = transformer.generateJsonFromRecipes();
-          // this.logger.log(recipesStr);
+                                const recipesStr: string = transformer.generateJsonFromRecipes();
+                                // this.logger.log(recipesStr);
 
-          const responseToBiteMapping = (response: Response) =>
-              biteLogic.populateWithHxlProxyInfo(response.json(), this.tagToTitleMap).getBite();
+                                const responseToBiteMapping = (response: any) =>
+                                    biteLogic.populateWithHxlProxyInfo(response, this.tagToTitleMap).getBite();
 
-          const onErrorBiteProcessor = () => {
-            biteLogic.getBite().errorMsg = 'Error while retrieving data values';
-            return Observable.of(biteLogic.getBite());
-          };
+                                const onErrorBiteProcessor = () => {
+                                    biteLogic.getBite().errorMsg = 'Error while retrieving data values';
+                                    return of(biteLogic.getBite());
+                                };
 
-          return this.makeCallToHxlProxy<Bite>([{key: 'recipe', value: recipesStr}], responseToBiteMapping, onErrorBiteProcessor);
-        });
-      }
-    );
+                                return this.makeCallToHxlProxy<Bite>(
+                                    [{key: 'recipe', value: recipesStr}], responseToBiteMapping, onErrorBiteProcessor
+                                );
+                            })
+                        );
+                }
+            )
+        );
+
   }
 
   /**
@@ -188,11 +198,14 @@ export class HxlproxyService {
       }
     }
     this.logger.log('The call will be made to: ' + url);
-    return this.http.get(url).map(mapFunction.bind(this)).catch(err => this.handleError(err, errorHandler));
+    return this.httpClient.get(url).pipe(
+        map(mapFunction.bind(this)),
+        catchError(err => this.handleError(err, errorHandler))
+    );
   }
 
-  private processMetaRowResponse(response: Response): string[][] {
-    const ret = response.json();
+  private processMetaRowResponse(response: any): string[][] {
+    const ret: string[][] = response;
 
     // let ret = [json[0], json[1]];
     this.logger.log('Response is: ' + ret);
@@ -214,11 +227,12 @@ export class HxlproxyService {
   //   this.logger.log('Test response is: ' + result);
   // }
 
-  private handleError (error: Response | any, errorHandler?: () => Observable<any>) {
+  private handleError (error: any, errorHandler?: () => Observable<any>) {
     let errMsg: string;
+    // TODO: Response logic might need refactoring after switching to HttpClient in Angular 6
     if (error instanceof Response) {
       try {
-        const body = error.json() || '';
+        const body: any = error.json() || '';
         const err = body.error || JSON.stringify(body);
         errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
       } catch (e) {
@@ -228,8 +242,7 @@ export class HxlproxyService {
       errMsg = error.message ? error.message : error.toString();
     }
     console.error('ERR! ' + errMsg);
-    const retValue = errorHandler ? errorHandler() : Observable.throw(errMsg);
+    const retValue = errorHandler ? errorHandler() : observableThrowError(errMsg);
     return retValue;
   }
-
 }

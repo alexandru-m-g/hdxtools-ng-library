@@ -2,38 +2,38 @@
 
 import { TestBed, async, inject } from '@angular/core/testing';
 import { HxlproxyService } from './hxlproxy.service';
-import { Logger } from 'angular2-logger/core';
-import { HttpModule, Http, Response, ResponseOptions, BaseRequestOptions } from '@angular/http';
-import { MockBackend } from '@angular/http/testing';
-import { AppConfigService } from './app-config.service';
-import { ObservableInput } from 'rxjs/Observable';
+import {HttpClientModule, HttpRequest} from '@angular/common/http';
+import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 
 describe('Service: Hxlproxy', () => {
-  let mockbackend, service;
+  let service: HxlproxyService;
+  let mockbackend: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpModule],
+      imports: [
+          HttpClientModule,
+          HttpClientTestingModule
+      ],
       providers: [
-        AppConfigService,
-        HxlproxyService,
-        BaseRequestOptions,
-        MockBackend,
-        Logger,
-        {
-          provide: Http,
-          deps: [MockBackend, BaseRequestOptions],
-          useFactory: (backend, options) => {
-            return new Http(backend, options);
-          }
-        }
+        HxlproxyService
+        // BaseRequestOptions,
+        // MockBackend,
+        // Logger,
+        // {
+        //   provide: Http,
+        //   deps: [MockBackend, BaseRequestOptions],
+        //   useFactory: (backend, options) => {
+        //     return new Http(backend, options);
+        //   }
+        // }
       ]
     });
   });
 
-  beforeEach(inject([HxlproxyService, MockBackend], (_service, _mockbackend) => {
+  beforeEach(inject([HxlproxyService, HttpTestingController], (_service: HxlproxyService, _backend: HttpTestingController) => {
     service = _service;
-    mockbackend = _mockbackend;
+    mockbackend = _backend;
   }));
 
   it('should ...', () => {
@@ -41,16 +41,14 @@ describe('Service: Hxlproxy', () => {
   });
 
   it('should ... throw error when meta rows missing', () => {
-    const response = [];
-    mockbackend.connections.subscribe(connection => {
-      connection.mockRespond(new Response(new ResponseOptions({body: JSON.stringify(response)})));
-    });
+    const response: any[] = [];
+    mockbackend.expectOne(((req: HttpRequest<any>) => true));
 
     const proxy: HxlproxyService = service;
     let errorThrown = false;
     try {
       proxy.fetchMetaRows('test.csv').subscribe(row => {
-        expect(function(){}).not.toHaveBeenCalled();
+        expect(function() {}).not.toHaveBeenCalled();
       });
     } catch (err) {
       errorThrown = true;
@@ -71,9 +69,11 @@ describe('Service: Hxlproxy', () => {
       '"#loc+airport+code+local", "#meta+url+airport", "#meta+url+wikipedia", "#meta+keywords", ' +
       '"#meta+score", "#date+updated"]' +
       ']';
-    mockbackend.connections.subscribe(connection => {
-      connection.mockRespond(new Response(new ResponseOptions({body: response})));
-    });
+
+    mockbackend.expectOne((req: HttpRequest<any>) => true).flush(response);
+    // mockbackend.connections.subscribe(connection => {
+    //   connection.mockRespond(new Response(new ResponseOptions({body: response})));
+    // });
 
     proxy.fetchMetaRows('test.csv').subscribe(result => {
       expect(result[0][0]).toBe('id');

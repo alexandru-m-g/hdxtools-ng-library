@@ -1,11 +1,10 @@
+
+import { throwError as observableThrowError, Observable, forkJoin } from 'rxjs';
 import { Pattern } from './../util/hxl/pattern';
 import { Cookbook, CookbookLibrary, BiteConfig } from './../types/bite-config';
 import { BiteFilters, Ingredient } from './../types/ingredient';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/reduce';
-import 'rxjs/add/observable/forkJoin';
+
 import { HxlproxyService } from './hxlproxy.service';
 import { Bite } from '../types/bite';
 import { ChartBite } from '../types/chart-bite';
@@ -15,9 +14,8 @@ import { BiteLogicFactory } from '../types/bite-logic-factory';
 import { AggregateFunctionOptions } from '../types/ingredients';
 import { TimeseriesChartBite } from '../types/timeseries-chart-bite';
 import { MyLogService } from './mylog.service';
-import { Observable } from 'rxjs/Observable';
-import { AsyncSubject } from 'rxjs/AsyncSubject';
-import 'rxjs/Rx';
+import { HttpClient } from '@angular/common/http';
+import { catchError, map, merge, mergeMap, publishLast, refCount, toArray } from 'rxjs/operators';
 
 @Injectable()
 export class CookBookService {
@@ -26,7 +24,7 @@ export class CookBookService {
 
   // private cookBooks: string[];
 
-  constructor(private logger: MyLogService, private hxlproxyService: HxlproxyService, private http: Http) {
+  constructor(private logger: MyLogService, private hxlproxyService: HxlproxyService, private httpClient: HttpClient) {
     // this.cookBooks = [
     //   // 'assets/bites-chart.json',
     //   // 'assets/bites-key-figure.json',
@@ -260,12 +258,12 @@ export class CookBookService {
 
     let cookbookUrls = [recipeUrl];
 
-    const cookBooksObs: Array<Observable<Response>> = cookbookUrls.map(book => this.http.get(book));
-    const responseObs: Observable<Response> = cookBooksObs.reduce((prev, current, idx) => prev.merge(current));
+    const cookBooksObs: Array<Observable<any>> = cookbookUrls.map(book => this.httpClient.get(book));
+    const responseObs: Observable<any> = cookBooksObs.reduce((prev, current, idx) => prev.pipe(merge(current)));
 
 
-    const toListOfCookbooks = (res: Response) => {
-      const configJson = res.json();
+    const toListOfCookbooks = (res: any) => {
+      const configJson = res;
       let cookbooks: Cookbook[];
       if (Array.isArray(configJson)) {
         const recipes = <BiteConfig[]>configJson;
@@ -290,36 +288,53 @@ export class CookBookService {
      *    -> Observable<Cookbook>
      *    -> Observable<Cookbook[]> one event containing a list with all the cookbooks from all files
      */
-    const cookbookListObs = responseObs.mergeMap(toListOfCookbooks).toArray();
+    const cookbookListObs = responseObs.pipe(
+        mergeMap(toListOfCookbooks),
+        toArray()
+    );
     const metaRowsObs = this.hxlproxyService.fetchMetaRows(url);
 
-    const cookbooksAndTagsObs = Observable.forkJoin(cookbookListObs, metaRowsObs).map( res => {
-      const cookbooks: Cookbook[] = res[0];
-      const rows = res[1];
-      const columnNames: string[] = rows[0];
-      const hxlTags: string[] = rows[1];
-      const chosenCookbook = this.determineCorrectCookbook(cookbooks, hxlTags, chosenCookbookName);
-      return {
-        cookbooks: cookbooks,
-        chosenCookbook: chosenCookbook,
-        hxlTags: hxlTags,
-        columnNames: columnNames,
-      };
-    });
-    cookbooksAndTagsObs.catch(err => this.handleError(err));
+    const cookbooksAndTagsObs = forkJoin(cookbookListObs, metaRowsObs).pipe(
+      map( res => {
+        const cookbooks: Cookbook[] = res[0];
+        const rows = res[1];
+        const columnNames: string[] = rows[0];
+        const hxlTags: string[] = rows[1];
+        const chosenCookbook = this.determineCorrectCookbook(cookbooks, hxlTags, chosenCookbookName);
+        return {
+          cookbooks: cookbooks,
+          chosenCookbook: chosenCookbook,
+          hxlTags: hxlTags,
+          columnNames: columnNames,
+        };
+      })
+    );
+
+    cookbooksAndTagsObs.pipe(
+      catchError(err => this.handleError(err))
+    );
 
     /**
      * publishLast() - so that an observer subscribing later would receive the last notification again
      * refCount() - so that the first observer subscribing would trigger the start of the HTTP request
      *            ( otherwise a connect() would've been needed)
      */
-    const publishedCookbooksAndTagsObs = cookbooksAndTagsObs.publishLast().refCount();
+    const publishedCookbooksAndTagsObs = cookbooksAndTagsObs
+      .pipe(
+        publishLast(),
+        refCount()
+      );
 
-    const bites: Observable<Bite> = publishedCookbooksAndTagsObs.mergeMap( res => {
-        return this.determineAvailableBites(res.columnNames, res.hxlTags, res.chosenCookbook.recipes);
-    });
+    const bites: Observable<Bite> = publishedCookbooksAndTagsObs
+      .pipe(
+        mergeMap( (res: any) => {
+          return this.determineAvailableBites(res.columnNames, res.hxlTags, res.chosenCookbook.recipes);
+        })
+      );
 
-    const availableCookbooksObs = publishedCookbooksAndTagsObs.map(res => res.cookbooks);
+    const availableCookbooksObs = publishedCookbooksAndTagsObs.pipe(
+      map((res: any) => res.cookbooks)
+    );
 
     return {
       biteObs: bites,
@@ -327,11 +342,12 @@ export class CookBookService {
     };
   }
 
-  private handleError (error: Response | any) {
+  private handleError (error: any) {
     let errMsg: string;
+    // TODO: Response logic might need refactoring after switching to HttpClient in Angular 6
     if (error instanceof Response) {
       try {
-        const body = error.json() || '';
+        const body: any = error.json() || '';
         const err = body.error || JSON.stringify(body);
         errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
       } catch (e) {
@@ -341,7 +357,7 @@ export class CookBookService {
       errMsg = error.message ? error.message : error.toString();
     }
     console.error('ERR! ' + errMsg);
-    const retValue = Observable.throw(errMsg);
+    const retValue = observableThrowError(errMsg);
     return retValue;
   }
 
