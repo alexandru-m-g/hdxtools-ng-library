@@ -16,7 +16,6 @@ import { DistinctCountChartTransformer } from './hxlproxy-transformers/distinct-
 import { TimeseriesChartTransformer } from './hxlproxy-transformers/timeseries-chart-transformer';
 import { FilterSettingTransformer } from './hxlproxy-transformers/filter-setting-transformer';
 import { MyLogService } from './mylog.service';
-import 'rxjs/Rx';
 
 @Injectable()
 export class HxlproxyService {

@@ -1,6 +1,6 @@
 {
   "name": "hxl-preview-ng-lib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Library QuickStart package.json from the documentation, supplemented with testing support",
   "main": "./bundles/hxl-preview-ng-lib.umd.js",
   "module": "./hxl-preview-ng-lib.es5.js",
