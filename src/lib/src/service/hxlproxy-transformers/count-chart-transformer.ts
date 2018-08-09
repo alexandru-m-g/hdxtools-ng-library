@@ -24,8 +24,10 @@ export class CountChartTransformer extends AbstractHxlTransformer {
           break;
         }
       }
-      const sortOperation = new SortOperation(dateTag, true);
-      recipes.push(sortOperation.recipe);
+      if (dateTag) {
+        const sortOperation = new SortOperation(dateTag, true);
+        recipes.push(sortOperation.recipe);
+      }
     }
 
 
