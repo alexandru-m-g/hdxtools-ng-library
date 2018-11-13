@@ -51,6 +51,13 @@ export class ChartBiteLogic extends BiteLogic {
     return ColorUsage.ONE;
   }
 
+  public isGroupedByDateColumn(): boolean {
+    if (this.bite.ingredient.aggregateColumn) {
+      return this.bite.ingredient.aggregateColumn.indexOf('#date') >= 0
+    }
+    return false;
+  }
+
   public get dataProperties(): ChartDataProperties {
     return this.bite.dataProperties as ChartDataProperties;
   }
