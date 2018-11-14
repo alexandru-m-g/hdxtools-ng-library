@@ -122,4 +122,12 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
   public get uiProperties(): TimeseriesChartUIProperties {
     return this.bite.uiProperties as TimeseriesChartUIProperties;
   }
+
+  public get showPoints(): boolean {
+    return this.uiProperties.showPoints;
+  }
+
+  public set showPoints(showPoints: boolean) {
+    this.uiProperties.showPoints = showPoints;
+  }
 }

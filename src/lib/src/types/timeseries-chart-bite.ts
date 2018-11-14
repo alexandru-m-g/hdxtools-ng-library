@@ -17,6 +17,9 @@ export class TimeseriesChartBite extends ChartBite {
 }
 
 export class TimeseriesChartUIProperties extends ChartUIProperties {
+
+  public showPoints = false;
+
   constructor() {
     super();
     this.color = ChartBite.colorPattern[1];

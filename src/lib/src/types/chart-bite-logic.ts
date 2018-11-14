@@ -86,8 +86,15 @@ export class ChartBiteLogic extends BiteLogic {
     return this.uiProperties.color;
   }
 
-  public get sorting(): string {
-    return this.uiProperties.sorting;
+  public get sortingByValue1(): string {
+    return this.uiProperties.sortingByValue1;
+  }
+
+  public get sortingByCategory1(): string {
+    if (this.sortingByValue1) {
+      return null;
+    }
+    return this.uiProperties.sortingByCategory1;
   }
 
   public get limit(): number {
