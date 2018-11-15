@@ -118,4 +118,54 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
     return this.uiProperties.comparisonColor;
   }
 
+  public get sortingByValue1(): string {
+    return this.uiProperties.sortingByValue1;
+  }
+
+  public set sortingByValue1(sortingByValue1: string) {
+    if (sortingByValue1) {
+      this.uiProperties.sortingByCategory1 = null;
+      this.uiProperties.sortingByValue2 = null;
+    }
+    this.uiProperties.sortingByValue1 = sortingByValue1;
+  }
+
+  public get sortingByCategory1(): string {
+    if (this.sortingByValue1 || this.sortingByValue2) {
+      return null;
+    }
+    return this.uiProperties.sortingByCategory1;
+  }
+
+  public set sortingByCategory1(sortingByCategory1: string) {
+    if (sortingByCategory1) {
+      this.uiProperties.sortingByValue1 = null;
+      this.uiProperties.sortingByValue2 = null;
+    }
+    this.uiProperties.sortingByCategory1 = sortingByCategory1;
+  }
+
+  public get sortingByValue2(): string {
+    if (this.sortingByValue1) {
+      return null;
+    }
+    return this.uiProperties.sortingByValue2;
+  }
+
+  public set sortingByValue2(sortingByValue2: string) {
+    if (sortingByValue2) {
+      this.uiProperties.sortingByCategory1 = null;
+      this.uiProperties.sortingByValue1 = null;
+    }
+    this.uiProperties.sortingByValue2 = sortingByValue2;
+  }
+
+  public get sortingByValue1Label(): string {
+    return 'Sort by values 1';
+  }
+
+  public get sortingByValue2Label(): string {
+    return 'Sort by values 2';
+  }
+
 }

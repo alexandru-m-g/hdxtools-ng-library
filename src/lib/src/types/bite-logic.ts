@@ -151,6 +151,18 @@ export abstract class BiteLogic {
     return false;
   }
 
+  public get sortingByValue1Label(): string {
+    return null;
+  }
+
+  public get sortingByValue2Label(): string {
+    return null;
+  }
+
+  public get sortingByCategory1Label(): string {
+    return null;
+  }
+
   public get dataProperties(): DataProperties {
     return this.bite.dataProperties;
   }

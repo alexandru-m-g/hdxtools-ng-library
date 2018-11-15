@@ -27,6 +27,9 @@ export class CountChartTransformer extends AbstractHxlTransformer {
       if (dateTag) {
         const sortOperation = new SortOperation(dateTag, true);
         recipes.push(sortOperation.recipe);
+      } else if (this.groupByTags.length > 0) {
+        const sortOperation = new SortOperation(this.groupByTags[0], true);
+        recipes.push(sortOperation.recipe);
       }
     }
 

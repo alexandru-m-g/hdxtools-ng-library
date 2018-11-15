@@ -90,11 +90,25 @@ export class ChartBiteLogic extends BiteLogic {
     return this.uiProperties.sortingByValue1;
   }
 
+  public set sortingByValue1(sortingByValue1: string) {
+    if (sortingByValue1) {
+      this.uiProperties.sortingByCategory1 = null;
+    }
+    this.uiProperties.sortingByValue1 = sortingByValue1;
+  }
+
   public get sortingByCategory1(): string {
     if (this.sortingByValue1) {
       return null;
     }
     return this.uiProperties.sortingByCategory1;
+  }
+
+  public set sortingByCategory1(sortingByCategory1: string) {
+    if (sortingByCategory1) {
+      this.uiProperties.sortingByValue1 = null;
+    }
+    this.uiProperties.sortingByCategory1 = sortingByCategory1;
   }
 
   public get limit(): number {
@@ -107,6 +121,18 @@ export class ChartBiteLogic extends BiteLogic {
 
   public get values(): any[] {
     return this.dataProperties.values;
+  }
+
+  public get sortingByValue1Label(): string {
+    return 'Sort by values';
+  }
+
+  public get sortingByValue2Label(): string {
+    return null;
+  }
+
+  public get sortingByCategory1Label(): string {
+    return 'Sort by category';
   }
 
 }

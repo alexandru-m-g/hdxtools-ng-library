@@ -22,7 +22,7 @@ import { KeyFigureBite, KeyFigureUIProperties, KeyFigureComputedProperties, KeyF
 import { TimeseriesChartBiteLogic } from './src/types/timeseries-chart-bite-logic';
 import { TimeseriesChartBite } from './src/types/timeseries-chart-bite';
 import { ComparisonChartBiteLogic } from './src/types/comparison-chart-bite-logic';
-import { ComparisonChartBite, ComparisonChartDataProperties } from './src/types/comparison-chart-bite';
+import { ComparisonChartBite, ComparisonChartDataProperties, ComparisonChartUIProperties } from './src/types/comparison-chart-bite';
 import { ChartBite, ChartUIProperties, ChartComputedProperties, ChartDataProperties } from './src/types/chart-bite';
 import { ChartBiteLogic } from './src/types/chart-bite-logic';
 import { ColorUsage, BiteLogic } from './src/types/bite-logic';
@@ -36,7 +36,7 @@ export { CookBookService, HxlproxyService, AnalyticsService, KeyFigureBite, KeyF
     TimeseriesChartBite, TimeseriesChartBiteLogic, ComparisonChartBite, ComparisonChartBiteLogic, BiteLogic,
     Bite, BiteConfig, BiteLogicFactory, ColorUsage, UnitsUtil,
     Cookbook, CookbooksAndTags,
-    UIProperties, KeyFigureUIProperties, ChartUIProperties,
+    UIProperties, KeyFigureUIProperties, ChartUIProperties, ComparisonChartUIProperties,
     ComputedProperties, KeyFigureComputedProperties, ChartComputedProperties,
     DataProperties, KeyFigureDataProperties, ChartDataProperties, ComparisonChartDataProperties,
     GA_EVENT, GA_PAGEVIEW, GaExtras, MapOfStrings }

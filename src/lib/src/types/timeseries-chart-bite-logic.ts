@@ -130,4 +130,16 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
   public set showPoints(showPoints: boolean) {
     this.uiProperties.showPoints = showPoints;
   }
+
+  public get sortingByValue1Label(): string {
+    return null;
+  }
+
+  public get sortingByValue2Label(): string {
+    return null;
+  }
+
+  public get sortingByCategory1Label(): string {
+    return null;
+  }
 }

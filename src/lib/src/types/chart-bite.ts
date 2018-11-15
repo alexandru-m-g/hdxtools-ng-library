@@ -27,7 +27,7 @@ export class ChartUIProperties extends UIProperties {
 
   public color = ChartBite.colorPattern[0];
   public sortingByValue1: string = ChartBite.SORT_DESC;
-  public sortingByCategory1: string = ChartBite.SORT_DESC;
+  public sortingByCategory1: string = null;
   public limit: number;
 }
 
