@@ -9,6 +9,7 @@ export abstract class BiteLogic {
   public abstract initUIProperties(): UIProperties;
   public abstract initComputedProperties(): ComputedProperties;
   public abstract initDataProperties(): DataProperties;
+
   /**
    * Generally used before saving the bite. We don't want the values to be saved as well.
    * The bites should have fresh data loaded from the data source each time.
@@ -151,6 +152,13 @@ export abstract class BiteLogic {
     return false;
   }
 
+  public initColorsIfNeeded(internalColorPattern: string[]): void {
+    if (!this.uiProperties.internalColorPattern) {
+      this.uiProperties.internalColorPattern = internalColorPattern;
+    }
+
+  }
+
   public get sortingByValue1Label(): string {
     return null;
   }
@@ -199,6 +207,10 @@ export abstract class BiteLogic {
     const defaultDataTitle = this.bite.computedProperties.dataTitle;
     const dataTitle = this.bite.uiProperties.dataTitle == null ? defaultDataTitle : this.bite.uiProperties.dataTitle;
     return dataTitle;
+  }
+
+  public get internalColorPattern(): string[] {
+    return this.uiProperties.internalColorPattern;
   }
 
   public get tempShowSaveCancelButtons(): boolean {

@@ -22,6 +22,5 @@ export class TimeseriesChartUIProperties extends ChartUIProperties {
 
   constructor() {
     super();
-    this.color = ChartBite.colorPattern[1];
   }
 }

@@ -29,7 +29,7 @@ export class ComparisonChartComputedProperties extends ChartComputedProperties {
 export class ComparisonChartUIProperties extends ChartUIProperties {
   public stackChart = false;
   public comparisonDataTitle: string;
-  public comparisonColor = ChartBite.colorPattern[1];
+  public comparisonColor: string = null;
   public sortingByValue2: string = null;
 }
 

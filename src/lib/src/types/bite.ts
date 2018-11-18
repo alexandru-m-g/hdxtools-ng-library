@@ -59,6 +59,8 @@ export class UIProperties {
   title: string;
   description: string;
   dataTitle: string;
+
+  internalColorPattern: string[];
 }
 
 /**

@@ -82,6 +82,13 @@ export class ComparisonChartBiteLogic extends ChartBiteLogic {
     return ColorUsage.MANY;
   }
 
+  public initColorsIfNeeded(colorPattern: string[]): void {
+    super.initColorsIfNeeded(colorPattern);
+    if (!this.uiProperties.comparisonColor) {
+      this.uiProperties.comparisonColor = colorPattern[1];
+    }
+  }
+
   public get dataProperties(): ComparisonChartDataProperties {
     return this.bite.dataProperties as ComparisonChartDataProperties;
   }

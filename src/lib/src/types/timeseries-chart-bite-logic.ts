@@ -119,6 +119,15 @@ export class TimeseriesChartBiteLogic extends ChartBiteLogic {
     return ColorUsage.ONE;
   }
 
+  public initColorsIfNeeded(colorPattern: string[]): void {
+    if (!this.uiProperties.internalColorPattern) {
+      this.uiProperties.internalColorPattern = colorPattern;
+    }
+    if (!this.uiProperties.color) {
+      this.uiProperties.color = colorPattern[1];
+    }
+  }
+
   public get uiProperties(): TimeseriesChartUIProperties {
     return this.bite.uiProperties as TimeseriesChartUIProperties;
   }

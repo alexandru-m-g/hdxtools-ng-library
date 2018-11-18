@@ -51,6 +51,13 @@ export class ChartBiteLogic extends BiteLogic {
     return ColorUsage.ONE;
   }
 
+  public initColorsIfNeeded(colorPattern: string[]): void {
+    super.initColorsIfNeeded(colorPattern);
+    if (!this.uiProperties.color) {
+      this.uiProperties.color = colorPattern[0];
+    }
+  }
+
   public isGroupedByDateColumn(): boolean {
     if (this.bite.ingredient.aggregateColumn) {
       return this.bite.ingredient.aggregateColumn.indexOf('#date') >= 0
