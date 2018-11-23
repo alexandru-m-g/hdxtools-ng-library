@@ -18,7 +18,10 @@
         "aggregateFunctions": [
           "sum"
         ],
-        "aggregateColumns": ["#date+year"],
+        "aggregateColumns": [
+          "#date+year",
+          "#country+code+iso2"
+        ],
         "valueColumns": [
           "#population+total"
         ]
