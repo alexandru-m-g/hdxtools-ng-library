@@ -1,0 +1,28 @@
+
+{
+  "name": "indicators over time",
+  "title": "Indicators over time",
+  "type": "cookbook",
+  "columns": [
+    "#date",
+    "#population",
+    "#country"
+  ],
+  "recipes": [
+    {
+      "name": "population over time",
+      "title": "Population Over Time",
+      "description": "",
+      "type": "timeseries",
+      "ingredients": {
+        "aggregateFunctions": [
+          "sum"
+        ],
+        "aggregateColumns": ["#date+year"],
+        "valueColumns": [
+          "#population+total"
+        ]
+      }
+    }
+  ]
+}
