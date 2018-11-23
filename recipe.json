@@ -19,8 +19,7 @@
           "sum"
         ],
         "aggregateColumns": [
-          "#date+year",
-          "#country+code+iso2"
+          "date+year"
         ],
         "valueColumns": [
           "#population+total"
